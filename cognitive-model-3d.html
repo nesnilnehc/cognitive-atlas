@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>认知模型三维坐标系</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root {
+      --bg: #04070f;
+      --bg-soft: rgba(11, 17, 31, 0.78);
+      --panel: rgba(8, 13, 24, 0.82);
+      --line: rgba(132, 168, 255, 0.28);
+      --text: #e7efff;
+      --muted: #a6b3d1;
+      --accent: #7fe6cb;
+      --accent-2: #7ebcff;
+      --danger: #ff8b8b;
+      --shadow: 0 18px 48px rgba(2, 6, 17, 0.45);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(26, 42, 94, 0.45), transparent 42%),
+        radial-gradient(circle at 87% 12%, rgba(31, 79, 91, 0.24), transparent 34%),
+        radial-gradient(circle at 62% 90%, rgba(48, 18, 72, 0.19), transparent 37%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) minmax(320px, 430px);
+      justify-content: space-between;
+      align-items: start;
+      gap: 14px;
+      padding: 92px 16px 16px;
+    }
+
+    .view-dock {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      top: 14px;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid rgba(140, 176, 251, 0.36);
+      border-radius: 14px;
+      background: rgba(9, 15, 29, 0.82);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 28px rgba(3, 8, 20, 0.35);
+      pointer-events: auto;
+    }
+
+    .dock-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .dock-actions {
+      justify-content: flex-end;
+    }
+
+    .global-language {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding-right: 8px;
+      border-right: 1px solid rgba(120, 156, 228, 0.3);
+      min-width: 0;
+    }
+
+    .view-btn {
+      border: 1px solid rgba(133, 165, 239, 0.38);
+      background: rgba(11, 20, 39, 0.88);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      line-height: 1.1;
+      white-space: nowrap;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .view-btn:hover {
+      background: rgba(27, 45, 82, 0.95);
+      border-color: rgba(160, 194, 255, 0.72);
+    }
+
+    .view-btn.active {
+      background: linear-gradient(140deg, rgba(34, 78, 156, 0.92), rgba(18, 53, 106, 0.94));
+      border-color: rgba(167, 206, 255, 0.9);
+      color: #f2f8ff;
+      box-shadow: inset 0 0 0 1px rgba(184, 218, 255, 0.35);
+    }
+
+    body.toolbar-hidden #overlay .controls,
+    body.info-hidden #overlay .info {
+      opacity: 0;
+      transform: translate3d(0, -10px, 0) scale(0.985);
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .panel {
+      pointer-events: auto;
+      width: 100%;
+      max-height: calc(100vh - 118px);
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .controls {
+      align-self: start;
+      padding: 16px 16px 12px;
+    }
+
+    .panel-scroll {
+      margin-top: 10px;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .controls h1 {
+      margin: 0;
+      font-family: "Barlow Condensed", sans-serif;
+      letter-spacing: 0.05em;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 1.05;
+    }
+
+    .controls .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+
+    .toolbar-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0 10px;
+    }
+
+    .toolbar-tab {
+      border: 1px solid rgba(133, 165, 239, 0.38);
+      background: rgba(11, 20, 39, 0.76);
+      color: #d8e6ff;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .toolbar-tab:hover {
+      background: rgba(25, 43, 79, 0.9);
+      border-color: rgba(160, 194, 255, 0.72);
+    }
+
+    .toolbar-tab.active {
+      background: linear-gradient(140deg, rgba(37, 76, 151, 0.86), rgba(19, 54, 108, 0.9));
+      border-color: rgba(165, 203, 255, 0.9);
+      color: #f2f7ff;
+      box-shadow: inset 0 0 0 1px rgba(184, 218, 255, 0.35);
+    }
+
+    .toolbar-tab-panel {
+      display: none;
+      animation: panelFadeIn 180ms ease;
+    }
+
+    .toolbar-tab-panel.active {
+      display: block;
+    }
+
+    @keyframes panelFadeIn {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 6px, 0);
+      }
+      to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    .language-finder {
+      font-size: 0.8rem;
+      letter-spacing: 0.03em;
+      color: #d4e2ff;
+      white-space: nowrap;
+    }
+
+    .language-buttons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .lang-btn {
+      border: 1px solid rgba(133, 165, 239, 0.38);
+      background: rgba(11, 20, 39, 0.88);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .lang-btn:hover {
+      background: rgba(27, 45, 82, 0.95);
+      border-color: rgba(160, 194, 255, 0.72);
+    }
+
+    .lang-btn.active {
+      background: rgba(42, 73, 131, 0.95);
+      border-color: rgba(167, 205, 255, 0.92);
+      color: #f3f7ff;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: 1px solid rgba(122, 157, 236, 0.35);
+      border-radius: 10px;
+      background: rgba(8, 13, 26, 0.9);
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+      font-size: 0.95rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(123, 185, 255, 0.2);
+    }
+
+    .model-picker {
+      border: 1px solid rgba(122, 157, 236, 0.35);
+      border-radius: 10px;
+      background: rgba(8, 13, 26, 0.9);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .model-picker-search {
+      width: 100%;
+      border: 1px solid rgba(122, 157, 236, 0.35);
+      border-radius: 10px;
+      background: rgba(6, 11, 22, 0.9);
+      color: var(--text);
+      padding: 9px 11px;
+      outline: none;
+      font-size: 0.88rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .model-picker-search:focus {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(123, 185, 255, 0.2);
+    }
+
+    .model-multi-summary {
+      font-size: 0.84rem;
+      color: #d9e6ff;
+      opacity: 0.92;
+      min-height: 18px;
+    }
+
+    .model-multi-list {
+      max-height: min(28vh, 235px);
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      align-content: flex-start;
+      gap: 8px;
+      border: 1px solid rgba(122, 157, 236, 0.22);
+      border-radius: 9px;
+      background: rgba(5, 9, 18, 0.7);
+    }
+
+    .model-multi-empty {
+      font-size: 0.78rem;
+      color: #8fa2c8;
+      padding: 6px 4px;
+    }
+
+    .filter-tag {
+      border: 1px solid rgba(122, 157, 236, 0.3);
+      background: rgba(14, 24, 45, 0.76);
+      color: #c7d9f7;
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 0.76rem;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      max-width: 100%;
+      text-wrap: balance;
+      white-space: normal;
+    }
+
+    .filter-tag:hover {
+      background: rgba(26, 43, 79, 0.92);
+      border-color: rgba(155, 195, 255, 0.7);
+      color: #e8f2ff;
+    }
+
+    .filter-tag.active {
+      border-color: rgba(124, 233, 204, 0.78);
+      background: rgba(21, 60, 57, 0.85);
+      color: #dffdf5;
+      box-shadow: inset 0 0 0 1px rgba(124, 233, 204, 0.35);
+    }
+
+    .model-multi-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 2px;
+    }
+
+    .model-multi-actions button {
+      border: 1px solid rgba(133, 165, 239, 0.38);
+      background: rgba(11, 20, 39, 0.88);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 0.76rem;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .model-multi-actions button:hover {
+      background: rgba(26, 42, 78, 0.95);
+      border-color: rgba(160, 194, 255, 0.72);
+    }
+
+    .toggle-list {
+      display: grid;
+      gap: 8px;
+      margin: 6px 0 14px;
+    }
+
+    .toggle-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .toggle-item input {
+      accent-color: var(--accent);
+    }
+
+    .preset-title {
+      margin: 6px 0 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
+    }
+
+    .legend {
+      margin-top: 8px;
+      border-top: 1px solid rgba(133, 164, 236, 0.2);
+      padding-top: 12px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .validation-panel {
+      margin-top: 10px;
+      border: 1px solid rgba(134, 166, 239, 0.3);
+      border-radius: 10px;
+      background: rgba(12, 20, 38, 0.62);
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: #c4d5f8;
+    }
+
+    .validation-title {
+      color: #e8f1ff;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .validation-ok {
+      color: #8ee9c8;
+    }
+
+    .validation-warn {
+      color: #ffd18a;
+    }
+
+    .validation-error {
+      color: #ff9e9e;
+    }
+
+    .info {
+      align-self: start;
+      padding: 16px;
+    }
+
+    .info-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .info-head-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .detail-head-btn {
+      border: 1px solid rgba(132, 171, 246, 0.34);
+      background: rgba(16, 27, 51, 0.78);
+      color: #d4e2ff;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+
+    .detail-head-btn:hover:enabled {
+      border-color: rgba(164, 205, 255, 0.72);
+      background: rgba(25, 42, 77, 0.9);
+      color: #eaf2ff;
+    }
+
+    .detail-head-btn:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .info-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .info h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      letter-spacing: 0.02em;
+    }
+
+    #modelContent {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.92rem;
+    }
+
+    .model-name {
+      margin: 0 0 8px;
+      color: var(--text);
+      font-family: "Barlow Condensed", sans-serif;
+      letter-spacing: 0.04em;
+      font-size: 1.65rem;
+      text-transform: uppercase;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .pill {
+      border: 1px solid rgba(140, 176, 251, 0.45);
+      border-radius: 999px;
+      padding: 4px 10px;
+      color: #cad9ff;
+      font-size: 0.78rem;
+      background: rgba(24, 37, 69, 0.64);
+      letter-spacing: 0.02em;
+    }
+
+    .meta {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid rgba(134, 166, 239, 0.24);
+      border-radius: 10px;
+      background: rgba(17, 24, 43, 0.52);
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: #c2d0ef;
+    }
+
+    .explain-card {
+      margin: 12px 0;
+      padding: 12px;
+      border: 1px solid rgba(137, 173, 246, 0.34);
+      border-radius: 12px;
+      background: rgba(10, 18, 36, 0.66);
+    }
+
+    .explain-title {
+      margin: 0;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+      color: #e9f2ff;
+    }
+
+    .explain-status-row {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pill.status-admitted {
+      border-color: rgba(124, 233, 204, 0.72);
+      color: #dffdf5;
+      background: rgba(21, 60, 57, 0.84);
+    }
+
+    .status-pill.status-observing {
+      border-color: rgba(255, 209, 138, 0.72);
+      color: #ffe7ba;
+      background: rgba(72, 50, 20, 0.84);
+    }
+
+    .status-pill.status-rejected {
+      border-color: rgba(255, 158, 158, 0.75);
+      color: #ffd7d7;
+      background: rgba(72, 26, 31, 0.84);
+    }
+
+    .explain-grid {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .explain-row {
+      border: 1px solid rgba(134, 166, 239, 0.22);
+      border-radius: 9px;
+      background: rgba(16, 24, 45, 0.52);
+      padding: 8px 10px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .explain-key {
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+      color: #9db4df;
+    }
+
+    .explain-value {
+      font-size: 0.83rem;
+      line-height: 1.45;
+      color: #d7e5ff;
+      word-break: break-word;
+    }
+
+    .overview-card {
+      border-color: rgba(137, 173, 246, 0.42);
+      background: rgba(8, 19, 39, 0.72);
+    }
+
+    .accordion-section {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .accordion-trigger {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #e9f2ff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
+      padding: 11px 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .accordion-trigger:hover {
+      background: rgba(23, 35, 62, 0.5);
+    }
+
+    .accordion-trigger:focus-visible {
+      outline: 2px solid rgba(163, 198, 255, 0.72);
+      outline-offset: -2px;
+    }
+
+    .accordion-indicator {
+      color: #b8c9ee;
+      font-size: 0.84rem;
+      transition: transform 0.2s ease;
+      transform-origin: 50% 50%;
+      flex: none;
+    }
+
+    .accordion-section.collapsed .accordion-indicator {
+      transform: rotate(-90deg);
+    }
+
+    .accordion-content {
+      padding: 0 12px 12px;
+    }
+
+    .overview-grid {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .overview-item {
+      border: 1px solid rgba(134, 166, 239, 0.22);
+      border-radius: 9px;
+      background: rgba(16, 24, 45, 0.56);
+      padding: 8px 10px;
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .overview-value {
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #d7e5ff;
+      word-break: break-word;
+    }
+
+    .definition-card {
+      border-color: rgba(134, 166, 239, 0.32);
+      background: rgba(9, 18, 35, 0.62);
+    }
+
+    .definition-text {
+      margin: 0;
+      color: #d7e5ff;
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
+    .resource-card {
+      border-color: rgba(126, 228, 206, 0.34);
+      background: rgba(9, 24, 31, 0.58);
+    }
+
+    .resource-section {
+      margin-top: 10px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .resource-list {
+      margin: 0;
+      padding-left: 17px;
+      display: grid;
+      gap: 4px;
+      color: #d6efe8;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .resource-inline-link {
+      color: #9ef4e3;
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(158, 244, 227, 0.58);
+    }
+
+    .resource-inline-link:hover {
+      color: #d6fff5;
+      border-bottom-color: rgba(214, 255, 245, 0.88);
+    }
+
+    .resource-links {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .resource-link {
+      border: 1px solid rgba(126, 228, 206, 0.46);
+      border-radius: 999px;
+      padding: 4px 10px;
+      color: #d2fdf4;
+      font-size: 0.76rem;
+      letter-spacing: 0.02em;
+      background: rgba(19, 64, 64, 0.56);
+      text-decoration: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .resource-link:hover {
+      border-color: rgba(162, 246, 228, 0.82);
+      background: rgba(24, 84, 84, 0.74);
+    }
+
+    .tag-card .pill-row {
+      margin: 0;
+    }
+
+    #tooltip {
+      position: fixed;
+      left: 0;
+      top: 0;
+      transform: translate3d(-9999px, -9999px, 0);
+      pointer-events: none;
+      border: 1px solid rgba(146, 186, 255, 0.58);
+      border-radius: 8px;
+      padding: 4px 8px;
+      color: #ecf3ff;
+      background: rgba(8, 12, 24, 0.92);
+      font-size: 0.82rem;
+      white-space: nowrap;
+      box-shadow: 0 8px 18px rgba(2, 8, 18, 0.42);
+      z-index: 9;
+    }
+
+    @media (max-width: 1200px) {
+      #overlay {
+        grid-template-columns: minmax(300px, 1fr);
+        justify-content: stretch;
+        padding-top: 104px;
+        gap: 10px;
+      }
+
+      .panel {
+        max-height: min(42vh, calc(100vh - 146px));
+      }
+
+      .view-dock {
+        left: 12px;
+        right: 12px;
+        top: 10px;
+        justify-content: space-between;
+        padding: 8px;
+      }
+
+      .global-language {
+        border-right: 0;
+        padding-right: 0;
+      }
+
+      .dock-group {
+        width: 100%;
+      }
+
+      .dock-actions {
+        justify-content: flex-start;
+      }
+
+      .overview-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-head {
+        align-items: flex-start;
+      }
+
+      .info-head-actions {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .toolbar-tabs {
+        grid-template-columns: 1fr;
+      }
+
+      .view-btn,
+      .lang-btn {
+        font-size: 0.74rem;
+      }
+    }
+  </style>
+</head>
+  <body>
+  <div id="overlay">
+    <section class="panel controls">
+      <h1 id="appTitle">认知模型三维坐标系</h1>
+      <p id="appSubtitle" class="subtitle">三维坐标可视化：时间导向 × 控制深度 × 抽象程度</p>
+      <div class="toolbar-tabs" role="tablist" aria-label="Toolbar sections">
+        <button id="tabModelsBtn" class="toolbar-tab active" type="button" role="tab" aria-selected="true" aria-controls="toolbarTabModels" data-toolbar-tab="models">模型筛选</button>
+        <button id="tabCellsBtn" class="toolbar-tab" type="button" role="tab" aria-selected="false" aria-controls="toolbarTabCells" data-toolbar-tab="cells">空间筛选</button>
+        <button id="tabVisualBtn" class="toolbar-tab" type="button" role="tab" aria-selected="false" aria-controls="toolbarTabVisual" data-toolbar-tab="visual">视觉图层</button>
+      </div>
+
+      <div class="panel-scroll">
+        <section id="toolbarTabModels" class="toolbar-tab-panel active" role="tabpanel" aria-labelledby="tabModelsBtn" data-toolbar-panel="models">
+          <div class="field">
+            <label id="modelMultiLabel" for="modelMultiSearchInput">模型检索（多选）</label>
+            <div id="modelPicker" class="model-picker">
+              <input id="modelMultiSearchInput" class="model-picker-search" type="text" placeholder="输入术语检索，例如：MECE / OKR" />
+              <div id="modelMultiSummary" class="model-multi-summary">全部模型</div>
+              <div id="modelMultiList" class="model-multi-list"></div>
+              <div class="model-multi-actions">
+                <button id="modelMultiSelectVisibleBtn" type="button">选择当前检索结果</button>
+                <button id="modelMultiSelectAllBtn" type="button">全选</button>
+                <button id="modelMultiClearBtn" type="button">清空</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="toolbarTabCells" class="toolbar-tab-panel" role="tabpanel" aria-labelledby="tabCellsBtn" data-toolbar-panel="cells">
+          <div class="field">
+            <label id="cellFilterLabel" for="cellMultiSearchInput">空间单元检索（多选）</label>
+            <div id="cellPicker" class="model-picker">
+              <input id="cellMultiSearchInput" class="model-picker-search" type="text" placeholder="检索空间单元，例如：过去 / 战略层 / 元模型" />
+              <div id="cellMultiSummary" class="model-multi-summary">已选：全部空间单元</div>
+              <div id="cellMultiList" class="model-multi-list"></div>
+              <div class="model-multi-actions">
+                <button id="cellMultiSelectVisibleBtn" type="button">选择当前检索结果</button>
+                <button id="cellMultiSelectAllBtn" type="button">全选空间单元</button>
+                <button id="cellMultiClearBtn" type="button">清空选择</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="toolbarTabVisual" class="toolbar-tab-panel" role="tabpanel" aria-labelledby="tabVisualBtn" data-toolbar-panel="visual">
+          <p id="visualSwitchTitle" class="preset-title">可视化</p>
+          <div class="toggle-list">
+            <label class="toggle-item">
+              <input id="linkToggle" type="checkbox" checked />
+              <span id="linkToggleText">显示同类模型连线</span>
+            </label>
+            <label class="toggle-item">
+              <input id="pyramidToggle" type="checkbox" checked />
+              <span id="gridToggleText">显示认知长方体网格</span>
+            </label>
+            <label class="toggle-item">
+              <input id="neighborToggle" type="checkbox" checked />
+              <span id="neighborToggleText">启用最近邻高亮</span>
+            </label>
+          </div>
+
+          <div id="legendText" class="legend">
+            拖拽旋转，滚轮缩放，右键平移。悬浮可查看名称，点击节点查看详情并高亮最近邻。
+          </div>
+          <div id="validationPanel" class="validation-panel" aria-live="polite"></div>
+        </section>
+      </div>
+    </section>
+
+    <aside class="panel info">
+      <div class="info-head">
+        <h2 id="modelPanelTitle">模型详情</h2>
+        <div class="info-head-actions">
+          <button id="detailCoordToggleBtn" type="button" class="detail-head-btn">显示技术坐标</button>
+          <button id="detailExpandAllBtn" type="button" class="detail-head-btn">全部展开</button>
+          <button id="detailCollapseAllBtn" type="button" class="detail-head-btn">全部收起</button>
+        </div>
+      </div>
+      <div class="info-scroll">
+        <div id="modelContent">点击 3D 节点查看模型定义、维度定位和核心资料。</div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="view-dock" aria-label="View controls">
+    <div class="dock-group">
+      <div class="global-language" aria-label="Language switch">
+        <span id="languageFinderText" class="language-finder">Language / 语言</span>
+        <div class="language-buttons">
+          <button type="button" class="lang-btn active" data-ui-lang="zh">中文</button>
+          <button type="button" class="lang-btn" data-ui-lang="en">English</button>
+        </div>
+      </div>
+      <button id="overviewModeBtn" type="button" class="view-btn">概览模式</button>
+      <button id="viewResetBtn" type="button" class="view-btn">默认视角</button>
+      <button id="viewXAxisBtn" type="button" class="view-btn">沿 X 轴看</button>
+      <button id="viewYAxisBtn" type="button" class="view-btn">沿 Y 轴看</button>
+      <button id="viewZAxisBtn" type="button" class="view-btn">沿 Z 轴看</button>
+    </div>
+    <div class="dock-group dock-actions">
+      <button id="toolbarToggleBtn" type="button" class="view-btn">隐藏工具栏</button>
+      <button id="detailToggleBtn" type="button" class="view-btn">隐藏详情</button>
+      <button id="fullscreenToggleBtn" type="button" class="view-btn">进入全屏</button>
+    </div>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.js"
+      }
+    }
+  </script>
+
+  <script src="./data/model-library.js"></script>
+  <script src="./src/layout.js"></script>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>

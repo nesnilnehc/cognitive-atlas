@@ -1,0 +1,5 @@
+# macOS
+.DS_Store
+
+# Temporary visual snapshots generated during UI tuning
+.tmp-*.png
