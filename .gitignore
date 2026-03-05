@@ -3,3 +3,6 @@
 
 # Temporary visual snapshots generated during UI tuning
 .tmp-*.png
+
+# Node
+node_modules/

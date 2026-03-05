@@ -46,6 +46,20 @@ const SEMANTIC_ORIGIN = { x: 0, y: 4, z: 4 };
 const NEIGHBOR_COUNT = 2;
 const MAX_LINKS_PER_NODE = 2;
 
+const VISUAL_CONFIG = {
+  nodeRadius: 1.28,
+  tubeRadius: 0.1,
+  axisEndpointRadius: 0.5,
+  axisOriginRadius: 0.42,
+  axisTubeEmissiveIntensity: 0.68,
+  axisEndpointEmissiveIntensity: 0.72,
+  exportCropMargin: 10,
+  exportAxisLabelScale: 1.25,
+  exportPixelRatio: 3,
+  overviewCompactLabelLimit: 14,
+  overviewCompactLabelMaxDistance: 140
+};
+
 const modelMultiSearchInput = document.getElementById("modelMultiSearchInput");
 const modelMultiSummary = document.getElementById("modelMultiSummary");
 const modelMultiList = document.getElementById("modelMultiList");
@@ -71,6 +85,7 @@ const dockExpandBtn = document.getElementById("dockExpandBtn");
 const viewDock = document.querySelector(".view-dock");
 const overviewModeBtn = document.getElementById("overviewModeBtn");
 const viewResetBtn = document.getElementById("viewResetBtn");
+const viewPromoBtn = document.getElementById("viewPromoBtn");
 const viewXAxisBtn = document.getElementById("viewXAxisBtn");
 const viewYAxisBtn = document.getElementById("viewYAxisBtn");
 const viewZAxisBtn = document.getElementById("viewZAxisBtn");
@@ -121,23 +136,23 @@ let infoHidden = false;
 let detailTechnicalViewEnabled = false;
 let activeToolbarTab = "models";
 const defaultViewDirection = new THREE.Vector3(1.22, 0.96, 1.18).normalize();
+const promoViewDirection = new THREE.Vector3(1.15, 1.02, 1.12).normalize();
 const CAMERA_VIEW_DIRECTIONS = {
   default: defaultViewDirection.clone(),
+  promo: promoViewDirection.clone(),
   x: new THREE.Vector3(1, 0.08, 0.04).normalize(),
   y: new THREE.Vector3(0.06, 1, 0.06).normalize(),
   z: new THREE.Vector3(0.04, 0.08, 1).normalize()
 };
-const OVERVIEW_COMPACT_LABEL_LIMIT = 18;
-const OVERVIEW_COMPACT_LABEL_MAX_DISTANCE = 150;
 let activeCameraView = "default";
 let baseCameraCenter = new THREE.Vector3(0, 0, 0);
 let baseCameraDistance = 128;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x04070f);
-scene.fog = new THREE.Fog(0x04070f, 80, 205);
+scene.background = new THREE.Color(0x0a1220);
+scene.fog = new THREE.Fog(0x0a1220, 140, 300);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -160,13 +175,13 @@ controls.target.set(0, 18, 18);
 controls.enablePan = true;
 controls.update();
 
-scene.add(new THREE.AmbientLight(0xbecfff, 0.62));
+scene.add(new THREE.AmbientLight(0xc8dcff, 0.85));
 
-const keyLight = new THREE.DirectionalLight(0x9ec6ff, 0.9);
+const keyLight = new THREE.DirectionalLight(0xa8d4ff, 1.1);
 keyLight.position.set(34, 65, 42);
 scene.add(keyLight);
 
-const fillLight = new THREE.PointLight(0x65dbcc, 0.72, 180, 2.1);
+const fillLight = new THREE.PointLight(0x7ee8dc, 0.9, 200, 1.8);
 fillLight.position.set(-38, 24, 54);
 scene.add(fillLight);
 
@@ -187,11 +202,12 @@ let visibleNodeMeshes = [];
 let queuedPointerEvent = null;
 let pointerFrameQueued = false;
 
-buildStarField();
 buildNodes();
 
 const isMobile = window.matchMedia("(max-width: 768px)").matches;
-if (isMobile) {
+const isSimpleMode = new URLSearchParams(window.location.search).has("simple") || isMobile;
+if (isSimpleMode) {
+  document.body.classList.add("simple-mode");
   toolbarHidden = true;
   infoHidden = true;
   setToolbarHidden(true);
@@ -323,6 +339,9 @@ overviewModeBtn?.addEventListener("click", () => {
 viewResetBtn?.addEventListener("click", () => {
   focusCameraOnView("default");
 });
+viewPromoBtn?.addEventListener("click", () => {
+  focusCameraOnView("promo");
+});
 viewXAxisBtn?.addEventListener("click", () => {
   focusCameraOnView("x");
 });
@@ -334,33 +353,134 @@ viewZAxisBtn?.addEventListener("click", () => {
 });
 document.addEventListener("fullscreenchange", updateFullscreenButton);
 
-function exportCanvasImage() {
-  const overlayEl = document.getElementById("overlay");
-  const dockEl = document.querySelector(".view-dock");
-  const tooltipEl = document.getElementById("tooltip");
-  const origOverlay = overlayEl?.style.visibility;
-  const origDock = dockEl?.style.visibility;
-  const origTooltip = tooltipEl?.style.visibility;
-  overlayEl && (overlayEl.style.visibility = "hidden");
-  dockEl && (dockEl.style.visibility = "hidden");
-  tooltipEl && (tooltipEl.style.visibility = "hidden");
+function getCognitiveSpaceBoundsInPixels(options = {}) {
+  const { tight = false } = options;
+  const xBand = computeGridBands([-1, 0, 1].map((x) => x * SCALE.x), SCALE.x);
+  const yBand = computeGridBands([1, 2, 3, 4].map((y) => toWorldY(y)), SCALE.y);
+  const zBand = computeGridBands([1, 2, 3, 4].map((z) => toWorldZ(z)), SCALE.z);
+  const padding = tight ? 2 : 14;
+  const box = new THREE.Box3(
+    new THREE.Vector3(xBand.min - padding, yBand.min - padding, zBand.min - padding),
+    new THREE.Vector3(xBand.max + padding, yBand.max + padding, zBand.max + padding)
+  );
+  const corners = [
+    new THREE.Vector3(box.min.x, box.min.y, box.min.z),
+    new THREE.Vector3(box.max.x, box.min.y, box.min.z),
+    new THREE.Vector3(box.min.x, box.max.y, box.min.z),
+    new THREE.Vector3(box.max.x, box.max.y, box.min.z),
+    new THREE.Vector3(box.min.x, box.min.y, box.max.z),
+    new THREE.Vector3(box.max.x, box.min.y, box.max.z),
+    new THREE.Vector3(box.min.x, box.max.y, box.max.z),
+    new THREE.Vector3(box.max.x, box.max.y, box.max.z)
+  ];
+  const canvas = renderer.domElement;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const v = new THREE.Vector3();
+  for (const corner of corners) {
+    v.copy(corner).project(camera);
+    const px = (v.x * 0.5 + 0.5) * canvas.width;
+    const py = (1 - (v.y * 0.5 + 0.5)) * canvas.height;
+    if (v.z >= -1 && v.z <= 1) {
+      minX = Math.min(minX, px);
+      minY = Math.min(minY, py);
+      maxX = Math.max(maxX, px);
+      maxY = Math.max(maxY, py);
+    }
+  }
+  if (!Number.isFinite(minX) || !Number.isFinite(maxX)) {
+    return { x: 0, y: 0, width: canvas.width, height: canvas.height };
+  }
+  const margin = tight ? VISUAL_CONFIG.exportCropMargin : 24;
+  let x = Math.max(0, Math.floor(minX) - margin);
+  let y = Math.max(0, Math.floor(minY) - margin);
+  let width = Math.ceil(maxX - minX) + margin * 2;
+  let height = Math.ceil(maxY - minY) + margin * 2;
+  if (x + width > canvas.width) width = canvas.width - x;
+  if (y + height > canvas.height) height = canvas.height - y;
+  width = Math.max(1, Math.min(width, canvas.width));
+  height = Math.max(1, Math.min(height, canvas.height));
+  x = Math.min(x, canvas.width - width);
+  y = Math.min(y, canvas.height - height);
+  return { x, y, width, height };
+}
 
-  requestAnimationFrame(() => {
+function scaleAxisLabelSprites(scale) {
+  axisGroup.traverse((obj) => {
+    if (obj.isSprite && obj.material?.map) {
+      obj.scale.multiplyScalar(scale);
+    }
+  });
+}
+
+function getExportDataUrl() {
+  return new Promise((resolve, reject) => {
+    const overlayEl = document.getElementById("overlay");
+    const dockEl = document.querySelector(".view-dock");
+    const tooltipEl = document.getElementById("tooltip");
+    const origOverlay = overlayEl?.style.visibility;
+    const origDock = dockEl?.style.visibility;
+    const origTooltip = tooltipEl?.style.visibility;
+    const origFog = scene.fog;
+    const origBackground = scene.background;
+    const origClearColor = renderer.getClearColor(new THREE.Color());
+    const origClearAlpha = renderer.getClearAlpha();
+    overlayEl && (overlayEl.style.visibility = "hidden");
+    dockEl && (dockEl.style.visibility = "hidden");
+    tooltipEl && (tooltipEl.style.visibility = "hidden");
+    scene.fog = null;
+    scene.background = new THREE.Color(0x0a1220);
+    renderer.setClearColor(0x0a1220, 1);
+    scaleAxisLabelSprites(VISUAL_CONFIG.exportAxisLabelScale);
+    const origPixelRatio = renderer.getPixelRatio();
+    const exportPR = VISUAL_CONFIG.exportPixelRatio ?? 2;
+    renderer.setPixelRatio(Math.max(origPixelRatio, exportPR));
+
     requestAnimationFrame(() => {
-      try {
-        const canvas = renderer.domElement;
-        const dataUrl = canvas.toDataURL("image/png");
-        const a = document.createElement("a");
-        a.href = dataUrl;
-        a.download = `modelspace-${new Date().toISOString().slice(0, 10)}.png`;
-        a.click();
-      } finally {
-        overlayEl && (overlayEl.style.visibility = origOverlay || "");
-        dockEl && (dockEl.style.visibility = origDock || "");
-        tooltipEl && (tooltipEl.style.visibility = origTooltip || "");
-      }
+      requestAnimationFrame(() => {
+        try {
+          const canvas = renderer.domElement;
+          const rect = getCognitiveSpaceBoundsInPixels({ tight: true });
+          const cropCanvas = document.createElement("canvas");
+          cropCanvas.width = rect.width;
+          cropCanvas.height = rect.height;
+          const ctx = cropCanvas.getContext("2d");
+          ctx.drawImage(
+            canvas,
+            rect.x, rect.y, rect.width, rect.height,
+            0, 0, rect.width, rect.height
+          );
+          resolve(cropCanvas.toDataURL("image/png"));
+        } catch (e) {
+          reject(e);
+        } finally {
+          renderer.setPixelRatio(origPixelRatio);
+          scaleAxisLabelSprites(1 / VISUAL_CONFIG.exportAxisLabelScale);
+          overlayEl && (overlayEl.style.visibility = origOverlay || "");
+          dockEl && (dockEl.style.visibility = origDock || "");
+          tooltipEl && (tooltipEl.style.visibility = origTooltip || "");
+          scene.fog = origFog;
+          scene.background = origBackground;
+          renderer.setClearColor(origClearColor, origClearAlpha);
+        }
+      });
     });
   });
+}
+
+function exportCanvasImage() {
+  getExportDataUrl().then((dataUrl) => {
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `modelspace-${new Date().toISOString().slice(0, 10)}.png`;
+    a.click();
+  });
+}
+
+if (typeof window !== "undefined") {
+  window.__getPromoExportDataUrl = getExportDataUrl;
 }
 modelContent.addEventListener("detail-sections-change", () => {
   updateDetailBulkActionButtons();
@@ -476,6 +596,7 @@ function updateViewControlsState() {
 
   const cameraButtonByKey = {
     default: viewResetBtn,
+    promo: viewPromoBtn,
     x: viewXAxisBtn,
     y: viewYAxisBtn,
     z: viewZAxisBtn
@@ -546,34 +667,34 @@ function createNodeLabelSprite(model) {
   const annotation = getModelAnnotation(model);
   const labelText = annotation ? `${model.name}\n${annotation}` : model.name;
   return createTextSprite(labelText, {
-    fontSize: 20,
-    lineHeight: 24,
+    fontSize: 22,
+    lineHeight: 26,
     paddingX: 12,
     paddingY: 8,
     background: "rgba(8, 15, 30, 0.68)",
     border: "rgba(143, 183, 255, 0.45)",
     textColor: "rgba(233, 243, 255, 0.95)",
-    scaleFactor: 0.014,
+    scaleFactor: 0.026,
     radius: 8
   });
 }
 
 function createCompactNodeLabelSprite(model) {
   return createTextSprite(shortenModelName(model.name, 15), {
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: 17,
+    lineHeight: 21,
     paddingX: 9,
     paddingY: 6,
     background: "rgba(8, 15, 30, 0.58)",
     border: "rgba(143, 183, 255, 0.38)",
     textColor: "rgba(235, 244, 255, 0.93)",
-    scaleFactor: 0.0112,
+    scaleFactor: 0.02,
     radius: 7
   });
 }
 
 function buildNodes() {
-  const geometry = new THREE.SphereGeometry(1.55, 32, 32);
+  const geometry = new THREE.SphereGeometry(VISUAL_CONFIG.nodeRadius, 28, 28);
   const cellTotals = new Map();
   const cellPlacementIndex = new Map();
   const cellOffsets = new Map();
@@ -591,10 +712,10 @@ function buildNodes() {
     const baseColor = categoryColorMap[item.category] ?? 0xa5b9e7;
     const material = new THREE.MeshStandardMaterial({
       color: baseColor,
-      roughness: 0.27,
-      metalness: 0.18,
+      roughness: 0.32,
+      metalness: 0.22,
       emissive: new THREE.Color(baseColor).multiplyScalar(0.15),
-      emissiveIntensity: 0.22
+      emissiveIntensity: 0.28
     });
     const mesh = new THREE.Mesh(geometry, material);
     const cellKey = `${getXBucketValue(item.x)}|${item.y}|${item.z}`;
@@ -616,18 +737,6 @@ function buildNodes() {
       baseEmissive: material.emissive.clone()
     };
 
-    const halo = new THREE.Mesh(
-      new THREE.SphereGeometry(2.12, 24, 24),
-      new THREE.MeshBasicMaterial({
-        color: baseColor,
-        transparent: true,
-        opacity: 0.13,
-        side: THREE.BackSide
-      })
-    );
-    halo.userData.isHalo = true;
-    mesh.add(halo);
-
     const detailLabel = createNodeLabelSprite(item);
     detailLabel.position.set(0, 3.45, 0);
     detailLabel.visible = false;
@@ -639,8 +748,6 @@ function buildNodes() {
     compactLabel.visible = false;
     mesh.userData.compactLabelSprite = compactLabel;
     mesh.add(compactLabel);
-
-    mesh.userData.haloMaterial = halo.material;
 
     nodesGroup.add(mesh);
     nodeMeshes.push(mesh);
@@ -958,6 +1065,7 @@ function applyUILanguage() {
   neighborToggleText.textContent = t.neighborToggleText;
   if (overviewModeBtn) overviewModeBtn.textContent = t.overviewModeText;
   if (viewResetBtn) viewResetBtn.textContent = t.viewResetText;
+  if (viewPromoBtn) viewPromoBtn.textContent = t.viewPromoText;
   if (viewXAxisBtn) viewXAxisBtn.textContent = t.viewXAxisText;
   if (viewYAxisBtn) viewYAxisBtn.textContent = t.viewYAxisText;
   if (viewZAxisBtn) viewZAxisBtn.textContent = t.viewZAxisText;
@@ -1007,14 +1115,41 @@ function updateDetailBulkActionButtons() {
   detailCollapseAllBtn.disabled = noSections || summary.expanded === 0;
 }
 
+function buildAxisTube(path, color) {
+  const curve = new THREE.LineCurve3(path[0], path[1]);
+  const tubeGeo = new THREE.TubeGeometry(curve, 8, VISUAL_CONFIG.tubeRadius, 6, false);
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    emissiveIntensity: VISUAL_CONFIG.axisTubeEmissiveIntensity,
+    roughness: 0.25,
+    metalness: 0.22
+  });
+  return new THREE.Mesh(tubeGeo, mat);
+}
+
+function buildAxisEndpoint(position, color) {
+  const geo = new THREE.SphereGeometry(VISUAL_CONFIG.axisEndpointRadius, 12, 12);
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    emissiveIntensity: VISUAL_CONFIG.axisEndpointEmissiveIntensity,
+    roughness: 0.2,
+    metalness: 0.25
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.copy(position);
+  return mesh;
+}
+
 function buildAxis() {
   clearGroup(axisGroup);
   const axisText = AXIS_TEXT_BY_LANG[uiLanguage];
 
-  const axisMaterialX = new THREE.LineBasicMaterial({ color: 0xff7f94 });
-  const axisMaterialY = new THREE.LineBasicMaterial({ color: 0x8ce7d2 });
-  const axisMaterialZ = new THREE.LineBasicMaterial({ color: 0x77a6ff });
-  const tickMaterial = new THREE.LineBasicMaterial({ color: 0x8896bb });
+  const axisColorX = 0xff8fa0;
+  const axisColorY = 0x6eefd8;
+  const axisColorZ = 0x7eb4ff;
+  const tickMaterial = new THREE.LineBasicMaterial({ color: 0xa0b0dc });
   const xValues = [-1, 0, 1].map((x) => x * SCALE.x);
   const yValues = [1, 2, 3, 4].map((y) => toWorldY(y));
   const zValues = [1, 2, 3, 4].map((z) => toWorldZ(z));
@@ -1026,23 +1161,45 @@ function buildAxis() {
   const zMax = Math.max(...zValues);
 
   axisGroup.add(
-    makeLine(new THREE.Vector3(xMin - 6, 0, 0), new THREE.Vector3(xMax + 6, 0, 0), axisMaterialX),
-    makeLine(new THREE.Vector3(0, yMin - 6, 0), new THREE.Vector3(0, yMax + 10, 0), axisMaterialY),
-    makeLine(new THREE.Vector3(0, 0, zMin - 6), new THREE.Vector3(0, 0, zMax + 10), axisMaterialZ)
+    buildAxisTube(
+      [new THREE.Vector3(xMin - 6, 0, 0), new THREE.Vector3(xMax + 6, 0, 0)],
+      axisColorX
+    ),
+    buildAxisTube(
+      [new THREE.Vector3(0, yMin - 6, 0), new THREE.Vector3(0, yMax + 10, 0)],
+      axisColorY
+    ),
+    buildAxisTube(
+      [new THREE.Vector3(0, 0, zMin - 6), new THREE.Vector3(0, 0, zMax + 10)],
+      axisColorZ
+    )
+  );
+
+  axisGroup.add(
+    buildAxisEndpoint(new THREE.Vector3(xMax + 6, 0, 0), axisColorX),
+    buildAxisEndpoint(new THREE.Vector3(0, yMax + 10, 0), axisColorY),
+    buildAxisEndpoint(new THREE.Vector3(0, 0, zMax + 10), axisColorZ)
   );
 
   const origin = new THREE.Mesh(
-    new THREE.SphereGeometry(0.68, 18, 18),
-    new THREE.MeshBasicMaterial({ color: 0xebf2ff })
+    new THREE.SphereGeometry(VISUAL_CONFIG.axisOriginRadius, 14, 14),
+    new THREE.MeshStandardMaterial({
+      color: 0xedf4ff,
+      emissive: 0x94b4eb,
+      emissiveIntensity: 0.55,
+      roughness: 0.25,
+      metalness: 0.15
+    })
   );
   axisGroup.add(origin);
 
+  const axisLabelOpts = { background: "rgba(12, 20, 40, 0.88)", border: "rgba(160, 200, 255, 0.72)", textColor: "rgba(245, 250, 255, 0.98)" };
   for (const x of [-1, 0, 1]) {
     const p = new THREE.Vector3(x * SCALE.x, 0, 0);
     axisGroup.add(
       makeLine(new THREE.Vector3(p.x, -0.7, 0), new THREE.Vector3(p.x, 0.7, 0), tickMaterial)
     );
-    const label = createTextSprite(axisText.x[String(x)]);
+    const label = createTextSprite(axisText.x[String(x)], axisLabelOpts);
     label.position.set(p.x, 2.1, 0);
     axisGroup.add(label);
   }
@@ -1052,7 +1209,7 @@ function buildAxis() {
     axisGroup.add(
       makeLine(new THREE.Vector3(-0.7, p.y, 0), new THREE.Vector3(0.7, p.y, 0), tickMaterial)
     );
-    const label = createTextSprite(axisText.y[String(y)]);
+    const label = createTextSprite(axisText.y[String(y)], axisLabelOpts);
     label.position.set(-5.2, p.y, 0);
     axisGroup.add(label);
   }
@@ -1062,20 +1219,20 @@ function buildAxis() {
     axisGroup.add(
       makeLine(new THREE.Vector3(-0.7, 0, p.z), new THREE.Vector3(0.7, 0, p.z), tickMaterial)
     );
-    const label = createTextSprite(axisText.z[String(z)]);
+    const label = createTextSprite(axisText.z[String(z)], axisLabelOpts);
     label.position.set(0, 2.1, p.z);
     axisGroup.add(label);
   }
 
-  const xTitle = createTextSprite(getUIText("axisXTitle"));
+  const xTitle = createTextSprite(getUIText("axisXTitle"), axisLabelOpts);
   xTitle.position.set(xMax + 9, 1.2, 0);
   axisGroup.add(xTitle);
 
-  const yTitle = createTextSprite(getUIText("axisYTitle"));
+  const yTitle = createTextSprite(getUIText("axisYTitle"), axisLabelOpts);
   yTitle.position.set(0.2, yMax + 11, 0);
   axisGroup.add(yTitle);
 
-  const zTitle = createTextSprite(getUIText("axisZTitle"));
+  const zTitle = createTextSprite(getUIText("axisZTitle"), axisLabelOpts);
   zTitle.position.set(0, 1.2, zMax + 11);
   axisGroup.add(zTitle);
 
@@ -1084,7 +1241,10 @@ function buildAxis() {
     lineHeight: 24,
     paddingX: 12,
     paddingY: 7,
-    scaleFactor: 0.015
+    scaleFactor: 0.015,
+    background: "rgba(12, 20, 40, 0.88)",
+    border: "rgba(160, 200, 255, 0.72)",
+    textColor: "rgba(245, 250, 255, 0.98)"
   });
   originTag.position.set(0, -2.8, 0);
   axisGroup.add(originTag);
@@ -1105,14 +1265,14 @@ function buildSpaceGrid() {
   const zMax = zBand.max;
 
   const outerMaterial = new THREE.LineBasicMaterial({
-    color: 0x80a2ef,
+    color: 0xa8ccff,
     transparent: true,
-    opacity: 0.46
+    opacity: 0.78
   });
   const innerMaterial = new THREE.LineBasicMaterial({
-    color: 0x6f8bd8,
+    color: 0x6a8fd8,
     transparent: true,
-    opacity: 0.2
+    opacity: 0.32
   });
 
   const p000 = new THREE.Vector3(xMin, yMin, zMin);
@@ -1166,9 +1326,9 @@ function buildSpaceGrid() {
 
   const cellGeometry = new THREE.BoxGeometry(SCALE.x * 0.94, SCALE.y * 0.9, SCALE.z * 0.9);
   const cellMaterial = new THREE.MeshBasicMaterial({
-    color: 0x4f75bb,
+    color: 0x6a90d8,
     transparent: true,
-    opacity: 0.032,
+    opacity: 0.06,
     depthWrite: false
   });
   const cellMesh = new THREE.InstancedMesh(cellGeometry, cellMaterial, totalCells);
@@ -1196,29 +1356,6 @@ function buildSpaceGrid() {
   pyramidGroup.add(gridLabel);
 
   pyramidGroup.visible = pyramidToggle.checked;
-}
-
-function buildStarField() {
-  const starGeo = new THREE.BufferGeometry();
-  const points = [];
-  for (let i = 0; i < 480; i++) {
-    points.push(
-      THREE.MathUtils.randFloatSpread(330),
-      THREE.MathUtils.randFloat(6, 180),
-      THREE.MathUtils.randFloatSpread(330)
-    );
-  }
-  starGeo.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
-
-  const starMat = new THREE.PointsMaterial({
-    color: 0x8ba6df,
-    size: 0.7,
-    transparent: true,
-    opacity: 0.65,
-    sizeAttenuation: true
-  });
-
-  scene.add(new THREE.Points(starGeo, starMat));
 }
 
 function applyFilters() {
@@ -1265,7 +1402,7 @@ function rebuildLinks() {
     const material = new THREE.LineBasicMaterial({
       color: categoryColorMap[category] ?? 0x9eb0d1,
       transparent: true,
-      opacity: 0.24
+      opacity: 0.42
     });
 
     const edgeSet = new Set();
@@ -1309,12 +1446,12 @@ function refreshNeighborHighlights() {
   neighborMeshes = candidates.map((item) => item.mesh);
 
   const lineMaterial = new THREE.LineDashedMaterial({
-    color: 0x7ee8cd,
+    color: 0x8ef4e0,
     linewidth: 1,
     dashSize: 1.3,
     gapSize: 0.9,
     transparent: true,
-    opacity: 0.8
+    opacity: 0.95
   });
 
   for (const candidate of candidates) {
@@ -1329,7 +1466,8 @@ function refreshNodeStyles() {
   const detailMode = !overviewMode;
   const compactLabelCandidates = new Set();
   if (overviewMode) {
-    const maxDistanceSq = OVERVIEW_COMPACT_LABEL_MAX_DISTANCE * OVERVIEW_COMPACT_LABEL_MAX_DISTANCE;
+    const maxDist = VISUAL_CONFIG.overviewCompactLabelMaxDistance;
+    const maxDistanceSq = maxDist * maxDist;
     const closest = visibleNodeMeshes
       .map((mesh) => ({
         mesh,
@@ -1337,7 +1475,7 @@ function refreshNodeStyles() {
       }))
       .filter((item) => item.distanceSq <= maxDistanceSq)
       .sort((a, b) => a.distanceSq - b.distanceSq)
-      .slice(0, OVERVIEW_COMPACT_LABEL_LIMIT);
+      .slice(0, VISUAL_CONFIG.overviewCompactLabelLimit);
     closest.forEach((item) => compactLabelCandidates.add(item.mesh));
   }
 
@@ -1359,32 +1497,33 @@ function refreshNodeStyles() {
       mesh.userData.compactLabelSprite.visible = showCompactLabel;
     }
 
+    const hasFocus = isSelected || isHovered || isNeighbor;
+    const hasActiveFocus = !!selectedMesh || !!hoveredMesh;
+    const dimNonFocus = hasActiveFocus && !hasFocus;
+
     material.emissive.copy(mesh.userData.baseEmissive);
     material.transparent = true;
-    material.opacity = overviewMode ? 0.76 : 1;
-    material.emissiveIntensity = overviewMode ? 0.14 : 0.22;
+    let opacity = overviewMode ? 0.85 : 1;
+    let emissiveIntensity = overviewMode ? 0.2 : 0.28;
 
-    if (mesh.userData.haloMaterial) {
-      mesh.userData.haloMaterial.opacity = overviewMode ? 0.09 : 0.13;
-    }
-
-    if (isHovered) {
-      material.opacity = 0.93;
-    }
-
-    if (isNeighbor) {
+    if (dimNonFocus) {
+      opacity = 0.42;
+      emissiveIntensity = 0.08;
+    } else if (isHovered) {
+      opacity = 0.98;
+      emissiveIntensity = 0.42;
+    } else if (isNeighbor) {
       material.emissive.setHex(0x7ee8cd);
-      material.emissiveIntensity = 0.38;
-      material.opacity = 0.9;
-      if (mesh.userData.haloMaterial) mesh.userData.haloMaterial.opacity = 0.15;
+      emissiveIntensity = 0.45;
+      opacity = 0.95;
+    } else if (isSelected) {
+      material.emissive.setHex(0xeef6ff);
+      emissiveIntensity = 0.58;
+      opacity = 1;
     }
 
-    if (isSelected) {
-      material.emissive.setHex(0xeef6ff);
-      material.emissiveIntensity = 0.52;
-      material.opacity = 1;
-      if (mesh.userData.haloMaterial) mesh.userData.haloMaterial.opacity = 0.2;
-    }
+    material.opacity = opacity;
+    material.emissiveIntensity = emissiveIntensity;
   }
 }
 
@@ -1474,6 +1613,9 @@ function onSceneClick(event) {
   const modelMesh = pickModelMesh(intersects);
   if (modelMesh) {
     selectNode(modelMesh);
+    if (isSimpleMode) {
+      showTooltip(event.clientX, event.clientY, getModelLabel(modelMesh.userData.model));
+    }
   } else {
     if (isOverviewMode()) {
       const badgeIntersects = raycaster.intersectObjects(cellBadgeGroup.children, true);
@@ -1489,13 +1631,14 @@ function onSceneClick(event) {
         return;
       }
     }
+    if (isSimpleMode) hideTooltip();
     selectNode(null);
   }
 }
 
 function selectNode(mesh) {
   selectedMesh = mesh;
-  if (mesh && infoHidden) setInfoHidden(false);
+  if (mesh && infoHidden && !isSimpleMode) setInfoHidden(false);
   refreshNeighborHighlights();
   refreshNodeStyles();
   renderModelDetails();

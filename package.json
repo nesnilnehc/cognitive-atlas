@@ -1,0 +1,12 @@
+{
+  "name": "modelspace",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "validate": "node scripts/validate-model-data.mjs",
+    "export-promo": "node scripts/export-promo-image.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

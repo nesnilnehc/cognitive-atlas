@@ -62,11 +62,14 @@ No build step needed. The project uses relative paths, so it runs correctly unde
 # Validate model data (same as CI)
 node scripts/validate-model-data.mjs
 
+# Export promo image for README (start server first, e.g. python3 -m http.server 8080)
+npm run export-promo
+
 # Remove local temp screenshots
 rm -f .tmp-*.png
 ```
 
-To update the promo image: open the 3D view, set the desired camera angle and filters, then click **导出图片** (Export image). Save as `docs/assets/modelspace-promo.png` to refresh the README preview.
+To update the promo image: run `npm run export-promo` (with the server running on port 8080), or open the 3D view, click **推广图视角** and **导出图片**, then save as `docs/assets/modelspace-promo.png`.
 
 ### Project structure
 
