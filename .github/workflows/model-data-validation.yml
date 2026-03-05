@@ -24,8 +24,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate model data
+      - name: Validate model data (Structure)
         run: node scripts/validate-model-data.mjs
+
+      - name: Validate model data (Content Governance)
+        run: npm run validate:content
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium

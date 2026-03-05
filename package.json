@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "validate": "node scripts/validate-model-data.mjs",
+    "validate:content": "node scripts/validate-model-content.mjs",
     "export-promo": "node scripts/export-promo-image.mjs",
     "smoke:e2e": "node scripts/smoke-e2e.mjs",
     "perf:budget": "node scripts/perf-budget.mjs"
