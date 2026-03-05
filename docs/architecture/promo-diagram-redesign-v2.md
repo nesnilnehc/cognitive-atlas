@@ -55,13 +55,14 @@ function toWorldZ(zLevel) {
 
 ### 3.1 三轴必须满足
 
-1. **原点**：三轴相交点 = **现在 (X=0) × 元认知层 (Y=4) × 元模型 (Z=4)**
+1. **原点**：三轴相交点，标签仅显示 **现在 / Present**（不显示数字）
 2. **三条直线**：X、Y、Z 各为一条直线，三线交于该原点
-3. **正交布局**：典型右手系等轴测或正视视角，三轴夹角清晰
-4. **与时间轴相交的顺序**（从原点沿各轴向外）：
-   - X：过去(-1) — **现在(0)** — 未来(1)
-   - Y：**元认知(4)** — 战略(3) — 结构(2) — 表达(1)（元认知在原点，与现在相交）
-   - Z：**元模型(4)** — 原则(3) — 方法(2) — 工具(1)（元模型在原点，与现在相交）
+3. **全双语**：所有刻度标签均为「中文 / English」
+4. **刻度不显示数字**：仅显示语义名称
+5. **与时间轴相交的顺序**：
+   - X：过去 / Past — **现在 / Present** — 未来 / Future
+   - Y：**元认知层 / Meta-Cognition** — 战略层 / Strategy — 结构层 / Structure — 表达层 / Output
+   - Z（向内）：**元模型 / Meta Model** — 原则 / Principle — 方法 / Method — 工具 / Tool
 
 ### 3.2 示例模型
 
@@ -81,22 +82,16 @@ function toWorldZ(zLevel) {
 ## 4. 细化后的 GenerateImage prompt（方案 B）
 
 ```
-Create a technical diagram for ModelSpace 3D coordinate system.
+Origin label ONLY: 现在 / Present (no numbers).
+All labels bilingual: 中文 / English. No numeric values on any axis.
 
-CRITICAL - THREE ORTHOGONAL AXES:
-- Three straight lines meeting at ONE point (origin). Origin = 现在(Present) × 元认知层(Meta-Cognition) × 元模型(Meta Model).
-- X axis: horizontal. Labels: 过去(-1) — 现在(0) — 未来(1)
-- Y axis: 元认知(4) at origin — 战略(3) — 结构(2) — 表达(1). 元认知 intersects with 现在.
-- Z axis: extends INWARD (into depth, away from viewer). 元模型(4) at origin (front) — 原则(3) — 方法(2) — 工具(1) toward back.
+X axis: 过去 / Past — 现在 / Present — 未来 / Future
+Y axis (no numbers): 元认知层 / Meta-Cognition — 战略层 / Strategy — 结构层 / Structure — 表达层 / Output
+Z axis (no numbers, INWARD): 元模型 / Meta Model — 原则 / Principle — 方法 / Method — 工具 / Tool
 
-At origin: 现在 × 元认知 × 元模型. Y outward; Z inward so MECE and OKR are clearly inside the space.
+Z order MUST be: 元模型, 原则, 方法, 工具 (Meta Model, Principle, Method, Tool).
 
-Model examples:
-- MECE at (0, 2, 3) - point on the grid
-- OKR at (1, 3, 2) - point on the grid
-
-Title: ModelSpace. Subtitle: 认知模型三维坐标系.
-Dark background. Clean, minimal.
+Model points: MECE, OKR. Title: ModelSpace. Subtitle: 认知模型三维坐标系.
 ```
 
 ## 5. 产出物
