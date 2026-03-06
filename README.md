@@ -18,7 +18,7 @@ A frontend-only 3D visualization of cognitive models, mapping them along **X (ti
 - **Shareable state**: URL query keeps language, view, filters, and panel state for sharing
 - **Embed mode**: Lightweight embedded entry (`embed.html`)
 - **i18n**: Chinese and English support
-- **CI validation**: GitHub Actions workflow runs model-data validation + E2E regression + perf budget on push/PR
+- **CI validation**: GitHub Actions runs structure + content validation, E2E regression, and perf budget on push/PR; **failures block merge**
 
 ---
 
@@ -68,8 +68,14 @@ No build step needed. The project uses relative paths, so it runs correctly unde
 ### Maintenance commands
 
 ```bash
-# Validate model data (same as CI)
-node scripts/validate-model-data.mjs
+# Validate model data - structure (same as CI)
+npm run validate
+
+# Validate model data - content governance (same as CI)
+npm run validate:content
+
+# Generate changelog lines from git diff (when editing model-library.js)
+npm run changelog:diff
 
 # Run E2E regression checks (i18n, filters, cell focus, related jumps, URL restore, embed, export)
 npm run smoke:e2e
@@ -107,8 +113,11 @@ See [docs/project-overview/project-file-map.md](docs/project-overview/project-fi
 
 1. Fork the repository
 2. Create a feature branch
-3. Run `node scripts/validate-model-data.mjs`, `npm run smoke:e2e`, and `npm run perf:budget` before committing
-4. Open a pull request
+3. Run `npm run validate`, `npm run validate:content`, `npm run smoke:e2e`, and `npm run perf:budget` before committing
+4. If you changed `data/model-library.js`, update `docs/changelog/model-library-changelog.md`
+5. Open a pull request
+
+**CI gates:** Structure validation, content governance validation, E2E regression, and perf budget all run on push/PR. Any failure **blocks merge**.
 
 ---
 

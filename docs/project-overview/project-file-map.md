@@ -26,6 +26,8 @@
 | --- | --- |
 | `.github/workflows/model-data-validation.yml` | CI 工作流：在 PR/push(main) 时运行模型数据校验与 E2E 回归。 |
 | `scripts/validate-model-data.mjs` | 本地/CI 共用校验脚本：检查 `data/model-library.js` 中类别合法性、重名、坐标 override 范围和配对完整性。 |
+| `scripts/validate-model-content.mjs` | 内容级校验脚本：描述长度、证据映射、参考资源完整性。 |
+| `scripts/changelog-diff.mjs` | 从 `git diff data/model-library.js` 提取模型变更，生成 changelog 表格行。 |
 | `scripts/smoke-e2e.mjs` | 端到端回归脚本（本地静态服务 + Playwright）：覆盖语言、筛选、单元聚焦、相关模型跳转、URL 恢复、嵌入与导出。 |
 | `scripts/perf-budget.mjs` | 性能预算基线脚本（100+ 节点）：首屏耗时、平均 FPS、导出耗时。 |
 
@@ -55,6 +57,8 @@
 | 文件 | 作用 |
 | --- | --- |
 | `docs/project-overview/project-file-map.md` | 当前文档：项目逐文件职责清单。 |
+| `docs/process-management/backlog.md` | 从 roadmap 抽取的待办清单；支持 traceability 与 execution-alignment。 |
+| `docs/changelog/model-library-changelog.md` | 模型库变更日志；按模型粒度记录新增/修改/删除。 |
 | `docs/requirements-planning/model-classification-standard.md` | 模型准入与三维分类的规范标准（v1.1）。 |
 | `docs/requirements-planning/20260304-model-admission-classification.md` | 2026-03-04 批次模型准入与三维分类结果总表。 |
 | `docs/designs/2026-03-05-iteration-roadmap.md` | 后续迭代路线设计草案（A/B/C 路线、阶段目标、验收标准）。 |
@@ -64,6 +68,7 @@
 | `docs/architecture/20260305-m1-module-boundaries-event-flow.md` | M1 工程基线文档：模块边界划分与事件流。 |
 | `docs/architecture/20260305-m2-m3-delivery.md` | M2/M3 交付说明：学习路径、相关模型、URL 状态、嵌入入口与导出命名。 |
 | `docs/architecture/20260305-m4-quality-baseline.md` | M4 质量基线交付说明：模块解耦、E2E 扩展、性能预算、默认 UI 优化。 |
+| `docs/architecture/20260306-m5-week2-implementation-plan.md` | M5 Week 2 变更可追踪：实施规划（changelog 模板、维护规则、可选脚本）。 |
 | `docs/architecture/promo-export-flow.md` | README 推广图导出与更新流程。 |
 
 ## 已清理的临时截图（2026-03-04）

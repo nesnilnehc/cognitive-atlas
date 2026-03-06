@@ -7,7 +7,8 @@
     "validate:content": "node scripts/validate-model-content.mjs",
     "export-promo": "node scripts/export-promo-image.mjs",
     "smoke:e2e": "node scripts/smoke-e2e.mjs",
-    "perf:budget": "node scripts/perf-budget.mjs"
+    "perf:budget": "node scripts/perf-budget.mjs",
+    "changelog:diff": "node scripts/changelog-diff.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0"
