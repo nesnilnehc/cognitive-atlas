@@ -37,7 +37,9 @@ export function createViewUiState(options = {}) {
     activeToolbarTab: "models",
     activeCameraView: "default",
     baseCameraCenter: three ? new three.Vector3(0, 0, 0) : null,
-    baseCameraDistance: 128
+    baseCameraDistance: 128,
+    visibilityMode: "overview", // 'overview' | 'focus'
+    focusedCell: null // { x, y, z } or null
   };
 }
 

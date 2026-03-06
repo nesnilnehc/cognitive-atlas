@@ -399,11 +399,13 @@ bindAppInteractionEvents({
     },
     onExportImage: () => {
       const mode = exportModeSelect?.value === "viewport" ? "viewport" : "full";
-      exportCanvasImage(buildExportFileName(), { mode });
+      const targetBox = getFocusedBox();
+      exportCanvasImage(buildExportFileName(), { mode, targetBox });
     },
     onExportPoster: () => {
       const t = UI_TEXT[viewUiState.uiLanguage];
-      exportPosterImage({ title: t.appTitle, subtitle: t.appSubtitle });
+      const targetBox = getFocusedBox();
+      exportPosterImage({ title: t.appTitle, subtitle: t.appSubtitle, targetBox });
     },
     onFullscreenToggle: () => {
       toggleFullscreen();
@@ -552,7 +554,8 @@ function setActiveToolbarTab(tabName) {
 }
 
 function isOverviewMode() {
-  return isAllCellsSelected()
+  return viewUiState.visibilityMode === "overview"
+    && isAllCellsSelected()
     && filterSelectionState.selectedModelNames.size === modelData.length
     && filterSelectionState.keyword.length === 0
     && filterSelectionState.cellKeyword.length === 0;
@@ -1032,7 +1035,7 @@ function rebuildCellFilterOptions() {
 
 function rebuildCellBadges() {
   clearGroup(cellBadgeGroup);
-  if (!isOverviewMode()) return;
+  if (viewUiState.visibilityMode !== "overview") return;
 
   const stats = getCellStats(true);
   let maxCount = 1;
@@ -1450,10 +1453,12 @@ function rebuildLinks() {
     const edgeSet = new Set();
     for (let i = 0; i < meshes.length; i++) {
       const source = meshes[i];
+      if (viewUiState.visibilityMode === "focus" && viewUiState.focusedCell && source.userData.cellKey !== viewUiState.focusedCell) continue;
       const nearest = [];
       for (let j = 0; j < meshes.length; j++) {
         if (i === j) continue;
         const target = meshes[j];
+        if (viewUiState.visibilityMode === "focus" && viewUiState.focusedCell && target.userData.cellKey !== viewUiState.focusedCell) continue;
         nearest.push({ mesh: target, d2: source.position.distanceToSquared(target.position) });
       }
       nearest.sort((a, b) => a.d2 - b.d2);
@@ -1504,8 +1509,10 @@ function refreshNeighborHighlights() {
 }
 
 function refreshNodeStyles() {
-  const overviewMode = isOverviewMode();
-  const detailMode = !overviewMode;
+  const overviewMode = viewUiState.visibilityMode === "overview";
+  const focusMode = viewUiState.visibilityMode === "focus";
+  const focusedCell = viewUiState.focusedCell;
+
   const compactLabelCandidates = new Set();
   if (overviewMode) {
     const maxDist = VISUAL_CONFIG.overviewCompactLabelMaxDistance;
@@ -1527,8 +1534,10 @@ function refreshNodeStyles() {
     const isSelected = mesh === viewUiState.selectedMesh;
     const isNeighbor = viewUiState.neighborMeshes.includes(mesh);
     const isVisible = mesh.visible;
-    const showDetailLabel = isVisible && (detailMode || isHovered || isSelected || isNeighbor);
-    const showCompactLabel = isVisible && !showDetailLabel && compactLabelCandidates.has(mesh);
+
+    const inFocusedCell = focusMode && mesh.userData.cellKey === focusedCell;
+    const showDetailLabel = isVisible && (inFocusedCell || isHovered || isSelected || isNeighbor);
+    const showCompactLabel = isVisible && !showDetailLabel && overviewMode && compactLabelCandidates.has(mesh);
 
     const baseScale = overviewMode ? 0.88 : 1;
     mesh.scale.setScalar(isSelected ? 1.35 : isHovered ? 1.2 : isNeighbor ? 1.12 : baseScale);
@@ -1541,27 +1550,44 @@ function refreshNodeStyles() {
 
     const hasFocus = isSelected || isHovered || isNeighbor;
     const hasActiveFocus = !!viewUiState.selectedMesh || !!viewUiState.hoveredMesh;
-    const dimNonFocus = hasActiveFocus && !hasFocus;
 
     material.emissive.copy(mesh.userData.baseEmissive);
     material.transparent = true;
-    let opacity = overviewMode ? 0.85 : 1;
-    let emissiveIntensity = overviewMode ? 0.2 : 0.28;
 
-    if (dimNonFocus) {
-      opacity = 0.42;
-      emissiveIntensity = 0.08;
-    } else if (isHovered) {
-      opacity = 0.98;
-      emissiveIntensity = 0.42;
-    } else if (isNeighbor) {
+    let opacity = 1;
+    let emissiveIntensity = 0.28;
+
+    if (focusMode) {
+      if (inFocusedCell) {
+        opacity = hasFocus ? 1 : 0.95;
+        emissiveIntensity = hasFocus ? 0.42 : 0.32;
+      } else {
+        opacity = hasFocus ? 0.42 : 0.1;
+        emissiveIntensity = hasFocus ? 0.12 : 0.05;
+      }
+    } else {
+      // Overview mode
+      const dimNonFocus = hasActiveFocus && !hasFocus;
+      opacity = 0.85;
+      emissiveIntensity = 0.2;
+
+      if (dimNonFocus) {
+        opacity = 0.42;
+        emissiveIntensity = 0.08;
+      } else if (isHovered) {
+        opacity = 0.98;
+        emissiveIntensity = 0.42;
+      } else if (isSelected) {
+        material.emissive.setHex(0xeef6ff);
+        emissiveIntensity = 0.58;
+        opacity = 1;
+      }
+    }
+
+    if (isNeighbor && isVisible) {
       material.emissive.setHex(0x7ee8cd);
       emissiveIntensity = 0.45;
-      opacity = 0.95;
-    } else if (isSelected) {
-      material.emissive.setHex(0xeef6ff);
-      emissiveIntensity = 0.58;
-      opacity = 1;
+      opacity = Math.max(opacity, 0.95);
     }
 
     material.opacity = opacity;
@@ -1663,13 +1689,12 @@ function onSceneClick(event) {
       const badgeIntersects = raycaster.intersectObjects(cellBadgeGroup.children, true);
       const cellBadge = pickCellBadge(badgeIntersects);
       if (cellBadge) {
-        filterSelectionState.selectedCellKeys.clear();
-        filterSelectionState.selectedCellKeys.add(cellBadge.userData.cellKey);
-        filterSelectionState.cellKeyword = "";
-        cellMultiSearchInput.value = "";
-        rebuildCellFilterOptions();
-        selectNode(null);
-        applyFilters();
+        viewUiState.visibilityMode = "focus";
+        viewUiState.focusedCell = cellBadge.userData.cellKey;
+        viewUiState.selectedMesh = null;
+        rebuildLinks();
+        refreshNodeStyles();
+        renderModelDetails();
         return;
       }
     }
@@ -1680,7 +1705,15 @@ function onSceneClick(event) {
 
 function selectNode(mesh) {
   viewUiState.selectedMesh = mesh;
-  if (mesh && viewUiState.infoHidden && !isSimpleMode) setInfoHidden(false);
+  if (mesh) {
+    viewUiState.visibilityMode = "focus";
+    viewUiState.focusedCell = mesh.userData.cellKey;
+    if (viewUiState.infoHidden && !isSimpleMode) setInfoHidden(false);
+  } else {
+    viewUiState.visibilityMode = "overview";
+    viewUiState.focusedCell = null;
+  }
+  rebuildLinks();
   refreshNeighborHighlights();
   refreshNodeStyles();
   renderModelDetails();
@@ -1755,6 +1788,30 @@ function fitCameraToCognitiveSpace() {
   camera.far = Math.max(1000, distance * 10);
   camera.updateProjectionMatrix();
   focusCameraOnView(viewUiState.activeCameraView, { keepSelection: true });
+}
+
+function getFocusedBox() {
+  if (viewUiState.visibilityMode !== "focus") return null;
+
+  const box = new THREE.Box3();
+  let hasPoints = false;
+
+  if (viewUiState.focusedCell) {
+    for (const mesh of nodeMeshes) {
+      if (mesh.userData.cellKey === viewUiState.focusedCell && mesh.visible) {
+        box.expandByObject(mesh);
+        hasPoints = true;
+      }
+    }
+  }
+
+  if (viewUiState.selectedMesh) {
+    box.expandByObject(viewUiState.selectedMesh);
+    hasPoints = true;
+  }
+
+  if (!hasPoints) return null;
+  return box;
 }
 
 function updatePointer(event) {

@@ -54,8 +54,8 @@ export function createDetailOrchestrator(options) {
     const axisText = axisTextByLang[viewUiState.uiLanguage];
 
     if (!viewUiState.selectedMesh) {
-      if (filterSelectionState.selectedCellKeys.size === 1) {
-        const [activeCellKey] = [...filterSelectionState.selectedCellKeys];
+      const activeCellKey = viewUiState.focusedCell || (filterSelectionState.selectedCellKeys.size === 1 ? [...filterSelectionState.selectedCellKeys][0] : null);
+      if (activeCellKey) {
         const activeCellModels = getVisibleModelsByCellKey(activeCellKey);
         if (activeCellModels.length > 0) {
           const typicalModel = chooseTypicalModel(activeCellModels);

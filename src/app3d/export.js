@@ -1,5 +1,53 @@
 import * as THREE from "three";
 
+function projectBoxToScreenRect(box, camera, renderer, margin) {
+  const corners = [
+    new THREE.Vector3(box.min.x, box.min.y, box.min.z),
+    new THREE.Vector3(box.max.x, box.min.y, box.min.z),
+    new THREE.Vector3(box.min.x, box.max.y, box.min.z),
+    new THREE.Vector3(box.max.x, box.max.y, box.min.z),
+    new THREE.Vector3(box.min.x, box.min.y, box.max.z),
+    new THREE.Vector3(box.max.x, box.min.y, box.max.z),
+    new THREE.Vector3(box.min.x, box.max.y, box.max.z),
+    new THREE.Vector3(box.max.x, box.max.y, box.max.z)
+  ];
+
+  const canvas = renderer.domElement;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const projected = new THREE.Vector3();
+
+  for (const corner of corners) {
+    projected.copy(corner).project(camera);
+    const px = (projected.x * 0.5 + 0.5) * canvas.width;
+    const py = (1 - (projected.y * 0.5 + 0.5)) * canvas.height;
+    minX = Math.min(minX, px);
+    minY = Math.min(minY, py);
+    maxX = Math.max(maxX, px);
+    maxY = Math.max(maxY, py);
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(maxX)) {
+    return { x: 0, y: 0, width: canvas.width, height: canvas.height };
+  }
+
+  let x = Math.max(0, Math.floor(minX) - margin);
+  let y = Math.max(0, Math.floor(minY) - margin);
+  let width = Math.ceil(maxX - minX) + margin * 2;
+  let height = Math.ceil(maxY - minY) + margin * 2;
+
+  if (x + width > canvas.width) width = canvas.width - x;
+  if (y + height > canvas.height) height = canvas.height - y;
+  width = Math.max(1, Math.min(width, canvas.width));
+  height = Math.max(1, Math.min(height, canvas.height));
+  x = Math.min(x, canvas.width - width);
+  y = Math.min(y, canvas.height - height);
+
+  return { x, y, width, height };
+}
+
 function getCognitiveSpaceBoundsInPixels({
   renderer,
   camera,
@@ -18,53 +66,7 @@ function getCognitiveSpaceBoundsInPixels({
     new THREE.Vector3(xBand.min - padding, yBand.min - padding, zBand.min - padding),
     new THREE.Vector3(xBand.max + padding, yBand.max + padding, zBand.max + padding)
   );
-
-  const corners = [
-    new THREE.Vector3(box.min.x, box.min.y, box.min.z),
-    new THREE.Vector3(box.max.x, box.min.y, box.min.z),
-    new THREE.Vector3(box.min.x, box.max.y, box.min.z),
-    new THREE.Vector3(box.max.x, box.max.y, box.min.z),
-    new THREE.Vector3(box.min.x, box.min.y, box.max.z),
-    new THREE.Vector3(box.max.x, box.min.y, box.max.z),
-    new THREE.Vector3(box.min.x, box.max.y, box.max.z),
-    new THREE.Vector3(box.max.x, box.max.y, box.max.z)
-  ];
-
-  const canvas = renderer.domElement;
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-  const projected = new THREE.Vector3();
-  for (const corner of corners) {
-    projected.copy(corner).project(camera);
-    const px = (projected.x * 0.5 + 0.5) * canvas.width;
-    const py = (1 - (projected.y * 0.5 + 0.5)) * canvas.height;
-    if (projected.z >= -1 && projected.z <= 1) {
-      minX = Math.min(minX, px);
-      minY = Math.min(minY, py);
-      maxX = Math.max(maxX, px);
-      maxY = Math.max(maxY, py);
-    }
-  }
-
-  if (!Number.isFinite(minX) || !Number.isFinite(maxX)) {
-    return { x: 0, y: 0, width: canvas.width, height: canvas.height };
-  }
-
-  const margin = tight ? exportCropMargin : 24;
-  let x = Math.max(0, Math.floor(minX) - margin);
-  let y = Math.max(0, Math.floor(minY) - margin);
-  let width = Math.ceil(maxX - minX) + margin * 2;
-  let height = Math.ceil(maxY - minY) + margin * 2;
-
-  if (x + width > canvas.width) width = canvas.width - x;
-  if (y + height > canvas.height) height = canvas.height - y;
-  width = Math.max(1, Math.min(width, canvas.width));
-  height = Math.max(1, Math.min(height, canvas.height));
-  x = Math.min(x, canvas.width - width);
-  y = Math.min(y, canvas.height - height);
-  return { x, y, width, height };
+  return projectBoxToScreenRect(box, camera, renderer, tight ? exportCropMargin : 24);
 }
 
 function scaleAxisLabelSprites(axisGroup, scale) {
@@ -121,19 +123,24 @@ export function createExportService({
     try {
       await waitForTwoFrames();
       const canvas = renderer.domElement;
-      const rect =
-        mode === "viewport"
-          ? { x: 0, y: 0, width: canvas.width, height: canvas.height }
-          : getCognitiveSpaceBoundsInPixels({
-              renderer,
-              camera,
-              computeGridBands,
-              scale,
-              toWorldY,
-              toWorldZ,
-              tight: true,
-              exportCropMargin: visualConfig.exportCropMargin
-            });
+      let rect;
+
+      if (options.targetBox) {
+        rect = projectBoxToScreenRect(options.targetBox, camera, renderer, visualConfig.exportCropMargin);
+      } else if (mode === "viewport") {
+        rect = { x: 0, y: 0, width: canvas.width, height: canvas.height };
+      } else {
+        rect = getCognitiveSpaceBoundsInPixels({
+          renderer,
+          camera,
+          computeGridBands,
+          scale,
+          toWorldY,
+          toWorldZ,
+          tight: true,
+          exportCropMargin: visualConfig.exportCropMargin
+        });
+      }
 
       const cropCanvas = document.createElement("canvas");
       cropCanvas.width = rect.width;
@@ -170,49 +177,67 @@ export function createExportService({
     });
   }
 
-  const POSTER_CONFIG = {
-    width: 1200,
-    height: 630,
-    padding: 24,
-    titleFont: "24px \"Noto Sans SC\", \"PingFang SC\", sans-serif",
-    subtitleFont: "16px \"Noto Sans SC\", \"PingFang SC\", sans-serif",
-    titleColor: "#e7efff",
-    subtitleColor: "#a6b3d1",
-    bgColor: "#0a1220",
-    borderColor: "rgba(140, 176, 251, 0.4)"
-  };
-
-  /**
-   * Composite 3D export into a share-card poster (1200×630).
-   * @param {{ title?: string, subtitle?: string }} [options]
-   * @returns {Promise<string>} data URL
-   */
   async function getExportPosterDataUrl(options = {}) {
-    const title = options.title ?? "认知模型三维坐标系";
-    const subtitle = options.subtitle ?? "用三维空间探索思维与决策模型";
-    const imgDataUrl = await getExportDataUrl({ mode: "viewport" });
-    const { width, height, padding, titleFont, subtitleFont, titleColor, subtitleColor, bgColor, borderColor } = POSTER_CONFIG;
+    const title = options.title ?? "MODEL SPACE";
+    const subtitle = options.subtitle ?? "Cognitive Space Visualization";
+    const imgDataUrl = await getExportDataUrl({ mode: "viewport", targetBox: options.targetBox });
+
+    const width = 1200;
+    const height = 630;
+    const padding = 40;
 
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = bgColor;
+
+    // 1. Background (Deep Dark Gradient)
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#050a14");
+    gradient.addColorStop(1, "#020408");
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(1, 1, width - 2, height - 2);
+    // 2. Tech Grid (Faint)
+    ctx.strokeStyle = "rgba(40, 60, 100, 0.08)";
+    ctx.lineWidth = 1;
+    const gridSize = 40;
+    ctx.beginPath();
+    for (let x = 0; x <= width; x += gridSize) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+    }
+    for (let y = 0; y <= height; y += gridSize) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(0, width); // Fix: lineTo(width, y)
+    }
+    // Fix loop for Y
+    ctx.stroke();
+    // Redo Grid properly
+    ctx.beginPath();
+    for (let x = 0; x <= width; x += gridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, height);
+    }
+    for (let y = 0; y <= height; y += gridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(width, y);
+    }
+    ctx.stroke();
 
-    ctx.fillStyle = titleColor;
-    ctx.font = titleFont;
-    ctx.textAlign = "center";
-    ctx.fillText(title, width / 2, padding + 20);
+    // 3. Header
+    ctx.shadowColor = "rgba(0, 240, 255, 0.5)";
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 52px 'Barlow Condensed', 'Noto Sans SC', sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText(title.toUpperCase(), padding + 20, padding + 10);
 
-    ctx.fillStyle = subtitleColor;
-    ctx.font = subtitleFont;
-    ctx.fillText(subtitle, width / 2, padding + 48);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#8aaacc";
+    ctx.font = "22px 'Barlow', 'Noto Sans SC', sans-serif";
+    ctx.fillText(subtitle, padding + 24, padding + 72);
 
+    // 4. Image
     const img = await new Promise((resolve, reject) => {
       const el = new Image();
       el.onload = () => resolve(el);
@@ -220,15 +245,44 @@ export function createExportService({
       el.src = imgDataUrl;
     });
 
-    const imgAreaY = padding + 56;
-    const imgAreaH = height - imgAreaY - padding;
-    const imgAreaW = width - padding * 2;
-    const scale = Math.min(imgAreaW / img.width, imgAreaH / img.height);
+    const contentY = padding + 100;
+    const contentH = height - contentY - padding - 30;
+    const contentW = width - padding * 2;
+
+    const scale = Math.min(contentW / img.width, contentH / img.height);
     const drawW = img.width * scale;
     const drawH = img.height * scale;
     const drawX = (width - drawW) / 2;
-    const drawY = imgAreaY + (imgAreaH - drawH) / 2;
+    const drawY = contentY + (contentH - drawH) / 2;
+
+    // Image Frame
+    ctx.strokeStyle = "rgba(0, 240, 255, 0.2)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(drawX - 4, drawY - 4, drawW + 8, drawH + 8);
+
     ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+    // 5. Decorative Brackets (Cyber Style)
+    ctx.strokeStyle = "#00f0ff";
+    ctx.lineWidth = 3;
+    const bSize = 24;
+    ctx.beginPath();
+    // TL
+    ctx.moveTo(padding, padding + bSize); ctx.lineTo(padding, padding); ctx.lineTo(padding + bSize, padding);
+    // TR
+    ctx.moveTo(width - padding - bSize, padding); ctx.lineTo(width - padding, padding); ctx.lineTo(width - padding, padding + bSize);
+    // BL
+    ctx.moveTo(padding, height - padding - bSize); ctx.lineTo(padding, height - padding); ctx.lineTo(padding + bSize, height - padding);
+    // BR
+    ctx.moveTo(width - padding - bSize, height - padding); ctx.lineTo(width - padding, height - padding); ctx.lineTo(width - padding, height - padding - bSize);
+    ctx.stroke();
+
+    // 6. Footer
+    ctx.fillStyle = "rgba(80, 120, 180, 0.5)";
+    ctx.font = "14px monospace";
+    ctx.textAlign = "right";
+    const dateStr = new Date().toISOString().slice(0, 10);
+    ctx.fillText(`ID: ${dateStr} // MODEL_SPACE_RENDER`, width - padding - 10, height - padding - 10);
 
     return canvas.toDataURL("image/png");
   }
