@@ -43,6 +43,7 @@ export function bindAppInteractionEvents({
     shareCopyBtn,
     exportImageBtn,
     exportPosterBtn,
+    exportDouyinCardBtn,
     fullscreenToggleBtn,
     dockExpandBtn,
     overviewModeBtn,
@@ -78,6 +79,7 @@ export function bindAppInteractionEvents({
     onShareCopy,
     onExportImage,
     onExportPoster,
+    onExportDouyinCard,
     onFullscreenToggle,
     onDockExpand,
     onOverviewMode,
@@ -149,6 +151,7 @@ export function bindAppInteractionEvents({
   bindClick(shareCopyBtn, onShareCopy);
   bindClick(exportImageBtn, onExportImage);
   bindClick(exportPosterBtn, onExportPoster);
+  bindClick(exportDouyinCardBtn, onExportDouyinCard);
   bindClick(fullscreenToggleBtn, onFullscreenToggle);
   bindClick(dockExpandBtn, onDockExpand);
   bindClick(overviewModeBtn, onOverviewMode);

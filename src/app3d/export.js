@@ -303,5 +303,274 @@ export function createExportService({
     });
   }
 
-  return { getExportDataUrl, exportCanvasImage, getExportPosterDataUrl, exportPosterImage };
+  /** 模型名 → 插图路径（相对项目根，用于竖卡） */
+  const ILLUSTRATION_PATHS = {
+    MECE: "docs/assets/illustrations/mece.png"
+  };
+
+  /** 模型名 → 竖卡补充信息：参考来源、应用场景示例 */
+  const DOUYIN_CARD_EXTRA = {
+    MECE: {
+      source: "Barbara Minto《金字塔原理》；McKinsey 结构化思维",
+      examples: "市场细分、问题拆解、报告结构、会议议题分类"
+    }
+  };
+
+  function loadImage(path) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`Failed to load image: ${path}`));
+      img.src = new URL(path, window.location.href).href;
+    });
+  }
+
+  /**
+   * 抖音竖卡：9:16 单模型卡
+   * 设计原则：第一次输出核心价值，引导指向更多价值
+   * 信息层级：名称 → [插图] → 概念 → 应用场景 → [分隔] → 获取更多
+   */
+  async function getDouyinCardDataUrl(model) {
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
+    const illustrationPath = ILLUSTRATION_PATHS[model.name];
+    let illustrationImg = null;
+    if (illustrationPath) {
+      try {
+        illustrationImg = await loadImage(illustrationPath);
+      } catch {
+        // 插图加载失败时继续渲染，不显示插图
+      }
+    }
+
+    const width = 1080;
+    const height = 1920;
+    const padding = 56;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#0d1520");
+    gradient.addColorStop(0.5, "#0a0f18");
+    gradient.addColorStop(1, "#05080c");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const maxW = width - padding * 2;
+    const defText = (model.descriptionEn || model.knowledgeObject?.summary || model.aliasZh || model.name) || "—";
+    const whenText = (model.knowledgeObject?.whenToUse || model.purpose || "").trim();
+    const showWhen = whenText && whenText !== defText;
+    const categoryLabels = { Expression: "表达", Structure: "结构", Diagnosis: "诊断", Strategy: "战略", Meta: "元认知" };
+    const scopeText = showWhen ? whenText : (model.category && categoryLabels[model.category]) ? `适用：${categoryLabels[model.category]}领域` : null;
+    const showScope = !!scopeText;
+
+    const defFont = "36px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif";
+
+    ctx.font = "bold 52px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif";
+    const nameH = measureWrappedHeight(ctx, model.name, maxW, 62);
+    ctx.font = "30px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif";
+    const aliasH = measureWrappedHeight(ctx, model.aliasZh || "", maxW, 40);
+    ctx.font = defFont;
+    const defH = measureWrappedHeight(ctx, defText, maxW, 44);
+    ctx.font = "30px -apple-system, BlinkMacSystemFont, sans-serif";
+    const scopeH = showScope ? 36 + measureWrappedHeight(ctx, scopeText, maxW, 38) + 28 : 0;
+    const extra = DOUYIN_CARD_EXTRA[model.name];
+    const sourceText = extra?.source || null;
+    const examplesText = extra?.examples || null;
+    ctx.font = "24px -apple-system, BlinkMacSystemFont, sans-serif";
+    const sourceH = sourceText ? 30 + measureWrappedHeight(ctx, sourceText, maxW, 30) + 16 : 0;
+    const examplesH = examplesText ? 30 + measureWrappedHeight(ctx, examplesText, maxW, 30) + 16 : 0;
+    const extraH = sourceH + examplesH;
+    const ctaH = 80;
+    const illustrationH = illustrationImg ? 240 + 24 : 0; // 插图高 240px + 下方间距
+    const contentH = 72 + nameH + 24 + aliasH + 48 + illustrationH + 36 + defH + 24 + scopeH + extraH + 40 + ctaH;
+    const blockTop = Math.max(padding, (height - contentH) / 2);
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 52px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif";
+    wrapText(ctx, model.name, width / 2, blockTop + 72, maxW, 62);
+
+    ctx.fillStyle = "rgba(170, 186, 204, 0.95)";
+    ctx.font = "30px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif";
+    wrapText(ctx, model.aliasZh || "", width / 2, blockTop + 72 + nameH + 24, maxW, 40);
+
+    if (illustrationImg) {
+      const illH = 240;
+      const illW = Math.min(maxW, illustrationImg.width * (illH / illustrationImg.height));
+      const illX = (width - illW) / 2;
+      const illY = blockTop + 72 + nameH + 24 + aliasH + 48;
+      ctx.drawImage(illustrationImg, illX, illY, illW, illH);
+    }
+
+    let y = blockTop + 72 + nameH + 24 + aliasH + 48 + illustrationH;
+    ctx.fillStyle = "rgba(170, 186, 204, 0.85)";
+    ctx.font = "26px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif";
+    ctx.fillText("概念", width / 2, y);
+    y += 36;
+    ctx.fillStyle = "rgba(232, 238, 244, 0.95)";
+    ctx.font = defFont;
+    wrapTextByWords(ctx, defText, width / 2, y, maxW, 44);
+    y += defH + 24;
+
+    if (showScope) {
+      ctx.fillStyle = "rgba(170, 186, 204, 0.85)";
+      ctx.font = "26px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif";
+      ctx.fillText(showWhen ? "应用场景" : "适用领域", width / 2, y);
+      y += 36;
+      ctx.fillStyle = "rgba(200, 210, 230, 0.9)";
+      ctx.font = "30px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      wrapTextByWords(ctx, scopeText, width / 2, y, maxW, 38);
+      y += measureWrappedHeight(ctx, scopeText, maxW, 38) + 28;
+    }
+
+    if (sourceText || examplesText) {
+      if (sourceText) {
+        ctx.fillStyle = "rgba(150, 165, 190, 0.75)";
+        ctx.font = "24px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif";
+        ctx.fillText("参考", width / 2, y);
+        y += 30;
+        ctx.fillStyle = "rgba(170, 186, 204, 0.85)";
+        wrapTextByWords(ctx, sourceText, width / 2, y, maxW, 30);
+        y += measureWrappedHeight(ctx, sourceText, maxW, 30) + 16;
+      }
+      if (examplesText) {
+        ctx.fillStyle = "rgba(150, 165, 190, 0.75)";
+        ctx.font = "24px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif";
+        ctx.fillText("示例", width / 2, y);
+        y += 30;
+        ctx.fillStyle = "rgba(170, 186, 204, 0.85)";
+        wrapTextByWords(ctx, examplesText, width / 2, y, maxW, 30);
+        y += measureWrappedHeight(ctx, examplesText, maxW, 30) + 16;
+      }
+      y += 8;
+    }
+
+    y += 24;
+    ctx.strokeStyle = "rgba(0, 240, 255, 0.2)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padding + 80, y);
+    ctx.lineTo(width - padding - 80, y);
+    ctx.stroke();
+    y += 40;
+
+    ctx.fillStyle = "rgba(0, 240, 255, 0.7)";
+    ctx.font = "26px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif";
+    ctx.fillText("获取更多价值", width / 2, y);
+    y += 40;
+    ctx.fillStyle = "#00f0ff";
+    ctx.font = "bold 30px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif";
+    ctx.fillText("关联模型 · 学习路径 · 练习 → 评论置顶", width / 2, y);
+
+    // 品牌水印（短期：文字标识；长期可替换为 Logo 图）
+    ctx.textAlign = "right";
+    ctx.textBaseline = "bottom";
+    ctx.fillStyle = "rgba(100, 130, 160, 0.55)";
+    ctx.font = "20px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    ctx.fillText("Cognitive Atlas", width - padding, height - padding);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+
+    return canvas.toDataURL("image/png");
+  }
+
+  function exportDouyinCard(model, fileName) {
+    getDouyinCardDataUrl(model).then((dataUrl) => {
+    const anchor = document.createElement("a");
+    anchor.href = dataUrl;
+    anchor.download = fileName || `cognitive-atlas-douyin-${model.name}-${new Date().toISOString().slice(0, 10)}.png`;
+    anchor.click();
+    });
+  }
+
+  return {
+    getExportDataUrl,
+    exportCanvasImage,
+    getExportPosterDataUrl,
+    exportPosterImage,
+    getDouyinCardDataUrl,
+    exportDouyinCard
+  };
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function wrapTextByWords(ctx, text, centerX, y, maxWidth, lineHeight) {
+  const s = String(text || "").trim();
+  const tokens = s.includes(" ") ? s.split(/\s+/) : s.split("");
+  const lines = [];
+  let line = "";
+  for (const token of tokens) {
+    const sep = line ? (s.includes(" ") ? " " : "") : "";
+    const test = line + sep + token;
+    const m = ctx.measureText(test);
+    if (m.width > maxWidth && line) {
+      lines.push(line);
+      line = token;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], centerX, y + i * lineHeight);
+  }
+}
+
+function wrapText(ctx, text, centerX, y, maxWidth, lineHeight) {
+  const chars = String(text || "").split("");
+  const lines = [];
+  let line = "";
+  for (const ch of chars) {
+    const test = line + ch;
+    const m = ctx.measureText(test);
+    if (m.width > maxWidth && line) {
+      lines.push(line);
+      line = ch;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], centerX, y + i * lineHeight);
+  }
+}
+
+function measureWrappedHeight(ctx, text, maxWidth, lineHeight) {
+  const words = String(text || "").split("");
+  let line = "";
+  let lines = 0;
+  for (const ch of words) {
+    const test = line + ch;
+    const m = ctx.measureText(test);
+    if (m.width > maxWidth && line) {
+      lines++;
+      line = ch;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines++;
+  return lines * lineHeight;
 }

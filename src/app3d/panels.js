@@ -40,6 +40,7 @@ export function resolvePanelElements(doc) {
     shareCopyBtn: doc.getElementById("shareCopyBtn"),
     exportImageBtn: doc.getElementById("exportImageBtn"),
     exportPosterBtn: doc.getElementById("exportPosterBtn"),
+    exportDouyinCardBtn: doc.getElementById("exportDouyinCardBtn"),
     fullscreenToggleBtn: doc.getElementById("fullscreenToggleBtn"),
     scopeStatus: doc.getElementById("scopeStatus"),
     dockAdvancedSummary: doc.getElementById("dockAdvancedSummary"),

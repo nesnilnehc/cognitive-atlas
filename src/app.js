@@ -117,6 +117,7 @@ const {
   shareCopyBtn,
   exportImageBtn,
   exportPosterBtn,
+  exportDouyinCardBtn,
   fullscreenToggleBtn,
   scopeStatus,
   dockAdvancedSummary,
@@ -185,7 +186,7 @@ const modelMeshByName = new Map();
 let visibleNodeMeshes = [];
 let queuedPointerEvent = null;
 let pointerFrameQueued = false;
-const { getExportDataUrl, exportCanvasImage, exportPosterImage } = createExportService({
+const { getExportDataUrl, exportCanvasImage, exportPosterImage, exportDouyinCard } = createExportService({
   renderer,
   camera,
   scene,
@@ -291,10 +292,11 @@ bindAppInteractionEvents({
     detailCoordToggleBtn,
     detailExpandAllBtn,
     detailCollapseAllBtn,
-    shareCopyBtn,
-    exportImageBtn,
-    exportPosterBtn,
-    fullscreenToggleBtn,
+  shareCopyBtn,
+  exportImageBtn,
+  exportPosterBtn,
+  exportDouyinCardBtn,
+  fullscreenToggleBtn,
     dockExpandBtn,
     overviewModeBtn,
     viewResetBtn,
@@ -430,6 +432,11 @@ bindAppInteractionEvents({
       const t = UI_TEXT[viewUiState.uiLanguage];
       const targetBox = getFocusedBox();
       exportPosterImage({ title: t.appTitle, subtitle: t.appSubtitle, targetBox });
+    },
+    onExportDouyinCard: () => {
+      const mesh = viewUiState.selectedMesh;
+      if (!mesh?.userData?.model) return;
+      exportDouyinCard(mesh.userData.model);
     },
     onFullscreenToggle: () => {
       toggleFullscreen();
@@ -608,6 +615,9 @@ function isOverviewMode() {
 }
 
 function updateViewControlsState() {
+  if (exportDouyinCardBtn) {
+    exportDouyinCardBtn.disabled = !viewUiState.selectedMesh?.userData?.model;
+  }
   const overviewActive = isOverviewMode();
   if (overviewModeBtn) {
     overviewModeBtn.classList.toggle("active", overviewActive);
@@ -1197,6 +1207,7 @@ function applyUILanguage() {
   if (shareCopyBtn) shareCopyBtn.textContent = t.shareCopyText;
   if (exportImageBtn) exportImageBtn.textContent = t.exportImageText;
   if (exportPosterBtn) exportPosterBtn.textContent = t.exportPosterText;
+  if (exportDouyinCardBtn) exportDouyinCardBtn.textContent = t.exportDouyinCardText;
   if (exportModeLabel) exportModeLabel.textContent = t.exportModeLabel;
   if (exportModeFullOption) exportModeFullOption.textContent = t.exportModeFull;
   if (exportModeViewportOption) exportModeViewportOption.textContent = t.exportModeViewport;
@@ -1794,6 +1805,7 @@ function selectNode(mesh) {
   refreshNodeStyles();
   renderModelDetails();
   updateScopeStatus();
+  updateViewControlsState();
 }
 
 function focusModelByName(modelName) {
