@@ -84,3 +84,12 @@ https://example.com/cognitive-model-3d.html?model=MECE
 # 单模型落地页直达（嵌入模式，英文）
 https://example.com/embed.html?simple=1&embed=1&model=MECE&l=en
 ```
+
+---
+
+## 4. 配套导出能力
+
+| 能力 | 说明 | 用法 |
+|------|------|------|
+| **竖卡导出** | 9:16 单模型卡（名称、定义、坐标、CTA「详情见评论」） | 聚焦模型后，更多 → 导出竖卡 |
+| **脚本模板** | 钩子→定义→例子→关联，含落地页占位符 | `npm run export:script` 或 `npm run export:script -- MECE` |

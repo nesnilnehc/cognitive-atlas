@@ -1,8 +1,8 @@
 # Project Cognitive Loop Report
 
-**Date:** 2026-03-09
-**Trigger:** scope-change
-**Scenario:** 落地方案引入新方向（抖音可传播认知资产 D/E/F/G + 体系化学习路径）。6 个 work items 已 capture；需验证需求、设计取舍、对齐治理文档。
+**Date:** 2026-03-09  
+**Trigger:** task-complete  
+**Scenario:** 模型落地页 URL 功能（feat(url): ?model= / ?mo=）已完成；验证执行对齐与文档就绪。
 
 ---
 
@@ -10,82 +10,87 @@
 
 | # | Skill | Why | Status |
 |---|-------|-----|--------|
-| 1 | analyze-requirements | scope-change 默认首步；将落地方案转为可验证需求 | executed |
-| 2 | brainstorm-design | scope-change 第二步；对 D/E/F/G 与学习路径做设计取舍 | executed |
-| 3 | execution-alignment | scope-change 第三步；traceback 新范围到 goals/roadmap/backlog，检测漂移 | executed |
+| 1 | execution-alignment | task-complete 默认首步；traceback 已完成 task 与 goals/roadmap/backlog 一致性 | executed |
+| 2 | documentation-readiness | 默认第二步；若 alignment 后 confidence < high 则执行；本 cycle 执行以确认 share-url 文档更新后的就绪度 | executed |
 
 ### Skipped Skills
 
 | Skill | Reason |
 |-------|--------|
-| `documentation-readiness` | scope-change 路由不含此步；文档完备性在后续 Doc Sync 处理 |
-| `run-repair-loop` | 无 active defects |
+| `analyze-requirements` | 无 scope-change；需求已由 model-landing-page-url-spec 覆盖 |
+| `brainstorm-design` | 无设计冲突 |
+| `run-repair-loop` | 无 active defects；smoke 与 validate 已通过 |
 
 ---
 
 ## Aggregated Findings
 
-### From analyze-requirements
-
-- **Problem articulated**: 创作者/用户需抖音原生可传播认知资产（竖卡、脚本、落地页）与体系化学习（路径、练习、导出），当前 Phase 3 以 cell 裁剪、主题海报为主，不承载认知结构。
-- **Needs testable**: 6 个 captured work items 均有 Problem/Need 与 Acceptance Criteria，可直接追溯。
-- **Constraints**: 无后端；复用 url-state.js、embed、model-library.js；YAGNI 保持。
-- **Scope bounded**: V1 = D 竖卡、E 脚本、G 落地页、学习路径设计、学习手册导出；F 系列路径为 P2；Atlas 内学习模式为可选后续。
-- **Validation**: 需求已充分，可进入设计细化与治理更新。
-
-### From brainstorm-design
-
-- **D/E/F/G 与学习路径**：方向已选（D/E/G P1；F P2）；与 cell/海报取舍已明确（放弃像素资产，优先结构资产）。
-- **Design handoffs**:
-  - 抖音竖卡、脚本、落地页：复用 `src/app3d/export.js`、`url-state.js` 与 model-library 结构；需新建设计文档（或扩展现有 Phase 3 设计）。
-  - 学习路径：依赖 prerequisite/next_step 已有数据；路径定义与 practice 补充为内容层工作。
-  - 学习手册导出：独立导出能力，输入为路径配置 + model-library。
-- **Trade-offs documented**: 落地方案中已记录；无需额外 brainstorm 产出。
-
 ### From execution-alignment
 
-- **Mode**: Full（scope-change 影响 goals、roadmap、design）
-- **Traceback**: 新范围 → Goals（可传播、可学习）→ Roadmap（Phase 3）→ Backlog
-- **Status**: Partial alignment
-- **Confidence**: High
-- **Evidence readiness**: Strong
-- **Drift detected**:
-  - **Roadmap/Backlog Drift** (medium): Phase 3 仍描述 cell 裁剪、主题海报；新方向 D/E/F/G + 学习路径未写入。
-  - **Goals Drift** (low): Goals 的「可传播」「可学习」描述笼统；未显式包含抖音场景、体系化路径。
-  - **Design Drift** (medium): Phase 3 设计文档未纳入 D/E/F/G，需更新或新建。
+- **Mode:** Lightweight（task-complete，无 release/milestone 标记）
+- **Traceback Path:** Task (G 落地页 URL) → Backlog → Roadmap → Requirements → Goals
+- **Status:** aligned
+- **Confidence:** high
+- **Evidence Readiness:** strong
+
+**Completed Task:**
+- Summary: feat(url): add model landing page URL param (?model= / ?mo=)
+- Outcome: 支持单模型直达链接；load 时自动选中模型并进入 focus 模式；share-url-best-practices 已更新；backlog G 项已标记完成
+
+**Alignment Status:**
+
+| Layer | Status | Evidence |
+|-------|--------|----------|
+| Backlog | aligned | 2026-03-09-model-landing-page-url-spec 验收标准已满足（?model=MECE、完整展示、share-url 文档、url-state 兼容） |
+| Roadmap | aligned | Phase 3 可传播认知资产，落地页 URL 为 G 项，支撑 D 竖卡/E 脚本 CTA |
+| Requirements | aligned | model-landing-page-url-spec 与 share-url-best-practices 一致 |
+| Goals | aligned | 可传播：落地页 URL 供短视频 CTA 链接 |
+
+**Drift Detected:** 无
+
+**Calibration Suggestions:**
+1. 下一 Phase 3 项：D 抖音竖卡 或 E 创作者脚本，可与落地页 CTA 联动
+2. 继续执行「文档同步」约定：下次架构/backlog 变更后更新 docs/architecture 与 project-file-map
+
+### From documentation-readiness
+
+- **Overall Readiness:** high
+- **Target Readiness:** high（已达成）
+
+**Layer Readiness（本 cycle 快速复核）：**
+
+| Layer | Score | Note |
+|-------|-------|------|
+| Goal | strong | goals.md 含三件套、可传播落地页 |
+| Requirements | strong | model-landing-page-url-spec 已闭环 |
+| Architecture | strong | 与 periodic-review 一致 |
+| Roadmap | strong | Phase 3 G 已完成 |
+| Backlog | strong | G 已勾选，D/E 可追溯 |
+
+**Gap Priority：** 无 critical gaps。share-url-best-practices 已补充 model/mo 参数说明。
 
 ---
 
 ## Blockers and Confidence
 
 - **Blocker:** None
-- **Confidence:** High
+- **Confidence:** high
 
 ---
 
 ## Recommended Next Tasks
 
-1. **[Update goals.md]** — 在「可传播」中补充：抖音场景可传播认知资产（竖卡、脚本、落地页）；在「可学习」中补充：体系化路径、练习、复习、学习手册导出。
-   - Rationale: 新范围与 goals 一致，需显式表述以支撑 traceback。
+1. **[启动 Phase 3 下一项：D 或 E]** — 落地页 URL 已就绪，可推进 D 抖音竖卡 或 E 创作者脚本；落地页 CTA 可直接引用 ?model=X。
+   - Rationale: Phase 3 设计推荐顺序；G 已完成。
    - Owner: maintainer
-   - Scope: [docs/project-overview/goals.md](docs/project-overview/goals.md)
+   - Scope: project-board/backlog/2026-03-09-douyin-card-export.md 或 2026-03-09-creator-script-template-export.md
 
-2. **[Update Phase 3 design]** — 将 D/E/F/G 与学习路径纳入设计文档；替换 cell 裁剪、主题海报为主轴。
-   - Rationale: Design drift 需修正；为实施提供单源真相。
+2. **[按需文档同步]** — 完成下一里程碑或架构变更时，更新 docs/architecture 与 project-file-map。
+   - Rationale: 维持 traceback 与 project-file-map 一致性。
    - Owner: maintainer
-   - Scope: [docs/designs/2026-03-06-phase3-architecture-evolution.md](docs/designs/2026-03-06-phase3-architecture-evolution.md) 或新建 `docs/designs/2026-03-09-spreadable-cognitive-assets-design.md`
+   - Scope: docs/architecture/, docs/project-overview/project-file-map.md
 
-3. **[Update roadmap]** — 增加 Phase 3 新里程碑：传播（抖音 D/E/G）+ 学习（路径+手册导出）。
-   - Rationale: Roadmap drift 需修正；与 goals、design 对齐。
+3. **[下次 task-complete 或 periodic-review]** — 若有新 task 完成，run execution-alignment；若 scope 变动，run scope-change 路由。
+   - Rationale: 保持治理周期连续性。
    - Owner: maintainer
-   - Scope: [docs/designs/2026-03-05-iteration-roadmap.md](docs/designs/2026-03-05-iteration-roadmap.md)
-
-4. **[Add requirements doc]** — 新增或补充：可传播认知资产需求（抖音竖卡、脚本、落地页）、体系化学习需求（路径、练习、导出）。
-   - Rationale: 支撑设计实施与验收。
-   - Owner: maintainer
-   - Scope: [docs/requirements-planning/](docs/requirements-planning/)
-
-5. **[Update backlog.md]** — 将 project-board/backlog 中的 6 个 captured work items 合并进 backlog.md，标注来源与优先级。
-   - Rationale: 统一待办视图，支撑 execution-alignment traceback。
-   - Owner: maintainer
-   - Scope: [docs/process-management/backlog.md](docs/process-management/backlog.md)
+   - Scope: 下次认知循环触发时

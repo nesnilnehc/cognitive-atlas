@@ -91,8 +91,8 @@
 - [x] 分享能力增强（短格式 URL、复制分享链接、分享最佳实践文档） — 已实现
 - [x] 局部截图（当前视口模式） — 已实现
 - [x] **G 落地页 URL 规范** — [2026-03-09-model-landing-page-url-spec](project-board/backlog/2026-03-09-model-landing-page-url-spec.md)
-- [ ] **D 抖音竖卡** — [2026-03-09-douyin-card-export](project-board/backlog/2026-03-09-douyin-card-export.md)
-- [ ] **E 创作者脚本模板** — [2026-03-09-creator-script-template-export](project-board/backlog/2026-03-09-creator-script-template-export.md)
+- [x] **D 抖音竖卡** — [2026-03-09-douyin-card-export](project-board/backlog/2026-03-09-douyin-card-export.md)
+- [x] **E 创作者脚本模板** — [2026-03-09-creator-script-template-export](project-board/backlog/2026-03-09-creator-script-template-export.md)
 - [ ] **学习路径与练习设计** — [2026-03-09-learning-path-practice-design](project-board/backlog/2026-03-09-learning-path-practice-design.md)
 - [ ] **学习手册 Markdown 导出** — [2026-03-09-learning-handbook-markdown-export](project-board/backlog/2026-03-09-learning-handbook-markdown-export.md)
 - 局部截图（cell 裁剪）、主题海报模板 — 降级，按需求择机
