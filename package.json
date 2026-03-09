@@ -11,7 +11,10 @@
     "smoke:e2e": "node scripts/smoke-e2e.mjs",
     "perf:budget": "node scripts/perf-budget.mjs",
     "changelog:diff": "node scripts/changelog-diff.mjs",
-    "export:script": "node scripts/export-creator-script.mjs"
+    "export:script": "node scripts/export-creator-script.mjs",
+    "generate:douyin-guides": "node scripts/generate-douyin-publish-guides.mjs",
+    "generate:illustrations": "node scripts/generate-illustrations.mjs",
+    "verify:illustrations": "node scripts/verify-illustrations.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Hero&apos;s Journey</text>
+  <polygon points="100,640 700,640 655,515 145,515" fill="#00f0ff" fill-opacity="0.18" stroke="#00f0ff" />
+    <text x="400" y="585.5" text-anchor="middle" fill="#dbe8f4" font-size="22">Return</text><circle cx="130" cy="539" r="13" fill="#00f0ff" />
+    <text x="130" y="544" text-anchor="middle" fill="#0d1520" font-size="11">1</text><polygon points="145,515 655,515 610,390 190,390" fill="#ff8c42" fill-opacity="0.26" stroke="#ff8c42" />
+    <text x="400" y="460.5" text-anchor="middle" fill="#dbe8f4" font-size="22">Abyss</text><circle cx="175" cy="414" r="13" fill="#ff8c42" />
+    <text x="175" y="419" text-anchor="middle" fill="#0d1520" font-size="11">2</text><polygon points="190,390 610,390 565,265 235,265" fill="#9d7bff" fill-opacity="0.33999999999999997" stroke="#9d7bff" />
+    <text x="400" y="335.5" text-anchor="middle" fill="#dbe8f4" font-size="22">Trials</text><circle cx="220" cy="289" r="13" fill="#9d7bff" />
+    <text x="220" y="294" text-anchor="middle" fill="#0d1520" font-size="11">3</text><polygon points="235,265 565,265 520,140 280,140" fill="#6b7b8c" fill-opacity="0.42" stroke="#6b7b8c" />
+    <text x="400" y="210.5" text-anchor="middle" fill="#dbe8f4" font-size="22">Call</text><circle cx="265" cy="164" r="13" fill="#6b7b8c" />
+    <text x="265" y="169" text-anchor="middle" fill="#0d1520" font-size="11">4</text>
+</svg>

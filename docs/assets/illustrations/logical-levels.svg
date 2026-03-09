@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Logical Levels</text>
+  <polygon points="100,640 700,640 655,556.6666666666666 145,556.6666666666666" fill="#00f0ff" fill-opacity="0.18" stroke="#00f0ff" />
+    <text x="400" y="606.3333333333333" text-anchor="middle" fill="#dbe8f4" font-size="22">Spirit</text><circle cx="130" cy="580.6666666666666" r="13" fill="#00f0ff" />
+    <text x="130" y="585.6666666666666" text-anchor="middle" fill="#0d1520" font-size="11">1</text><polygon points="145,556.6666666666666 655,556.6666666666666 610,473.3333333333333 190,473.3333333333333" fill="#ff8c42" fill-opacity="0.26" stroke="#ff8c42" />
+    <text x="400" y="523" text-anchor="middle" fill="#dbe8f4" font-size="22">Identity</text><circle cx="175" cy="497.3333333333333" r="13" fill="#ff8c42" />
+    <text x="175" y="502.3333333333333" text-anchor="middle" fill="#0d1520" font-size="11">2</text><polygon points="190,473.33333333333337 610,473.33333333333337 565,390.00000000000006 235,390.00000000000006" fill="#9d7bff" fill-opacity="0.33999999999999997" stroke="#9d7bff" />
+    <text x="400" y="439.66666666666674" text-anchor="middle" fill="#dbe8f4" font-size="22">Values</text><circle cx="220" cy="414.00000000000006" r="13" fill="#9d7bff" />
+    <text x="220" y="419.00000000000006" text-anchor="middle" fill="#0d1520" font-size="11">3</text><polygon points="235,390 565,390 520,306.6666666666667 280,306.6666666666667" fill="#6b7b8c" fill-opacity="0.42" stroke="#6b7b8c" />
+    <text x="400" y="356.33333333333337" text-anchor="middle" fill="#dbe8f4" font-size="22">Capability</text><circle cx="265" cy="330.6666666666667" r="13" fill="#6b7b8c" />
+    <text x="265" y="335.6666666666667" text-anchor="middle" fill="#0d1520" font-size="11">4</text><polygon points="280,306.6666666666667 520,306.6666666666667 475,223.33333333333337 325,223.33333333333337" fill="#00f0ff" fill-opacity="0.5" stroke="#00f0ff" />
+    <text x="400" y="273.00000000000006" text-anchor="middle" fill="#dbe8f4" font-size="22">Behavior</text><circle cx="310" cy="247.33333333333337" r="13" fill="#00f0ff" />
+    <text x="310" y="252.33333333333337" text-anchor="middle" fill="#0d1520" font-size="11">5</text><polygon points="325,223.33333333333337 475,223.33333333333337 430,140.00000000000006 370,140.00000000000006" fill="#ff8c42" fill-opacity="0.5800000000000001" stroke="#ff8c42" />
+    <text x="400" y="189.6666666666667" text-anchor="middle" fill="#dbe8f4" font-size="22">Environment</text><circle cx="355" cy="164.00000000000006" r="13" fill="#ff8c42" />
+    <text x="355" y="169.00000000000006" text-anchor="middle" fill="#0d1520" font-size="11">6</text>
+</svg>

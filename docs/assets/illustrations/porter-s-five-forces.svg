@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Porter&apos;s Five Forces</text>
+  <circle cx="400" cy="430" r="84" fill="#6b7b8c" fill-opacity="0.2" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="438" text-anchor="middle" fill="#dbe8f4" font-size="20">Rivalry</text><line x1="400" y1="430" x2="400" y2="220" stroke="rgba(180,210,230,0.55)" />
+    <circle cx="400" cy="220" r="56" fill="#00f0ff" fill-opacity="0.22" stroke="#00f0ff" />
+    <text x="400" y="227" text-anchor="middle" fill="#dbe8f4" font-size="16">Supplier Power</text><line x1="400" y1="430" x2="599.7218684219822" y2="365.10643118126103" stroke="rgba(180,210,230,0.55)" />
+    <circle cx="599.7218684219822" cy="365.10643118126103" r="56" fill="#ff8c42" fill-opacity="0.22" stroke="#ff8c42" />
+    <text x="599.7218684219822" y="372.10643118126103" text-anchor="middle" fill="#dbe8f4" font-size="16">Buyer Power</text><line x1="400" y1="430" x2="523.4349029814193" y2="599.8935688187389" stroke="rgba(180,210,230,0.55)" />
+    <circle cx="523.4349029814193" cy="599.8935688187389" r="56" fill="#9d7bff" fill-opacity="0.22" stroke="#9d7bff" />
+    <text x="523.4349029814193" y="606.8935688187389" text-anchor="middle" fill="#dbe8f4" font-size="16">Competitive Riva</text><line x1="400" y1="430" x2="276.5650970185807" y2="599.8935688187389" stroke="rgba(180,210,230,0.55)" />
+    <circle cx="276.5650970185807" cy="599.8935688187389" r="56" fill="#6b7b8c" fill-opacity="0.22" stroke="#6b7b8c" />
+    <text x="276.5650970185807" y="606.8935688187389" text-anchor="middle" fill="#dbe8f4" font-size="16">Threat of Substi</text><line x1="400" y1="430" x2="200.27813157801774" y2="365.1064311812611" stroke="rgba(180,210,230,0.55)" />
+    <circle cx="200.27813157801774" cy="365.1064311812611" r="56" fill="#00f0ff" fill-opacity="0.22" stroke="#00f0ff" />
+    <text x="200.27813157801774" y="372.1064311812611" text-anchor="middle" fill="#dbe8f4" font-size="16">Threat of New En</text>
+</svg>

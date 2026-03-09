@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">PDCA</text>
+  <circle cx="400" cy="430" r="200" fill="none" stroke="rgba(180,210,230,0.55)" stroke-width="2" /><text x="400" y="438" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="20">CONTINUOUS IMPROVEMENT</text><circle cx="400" cy="230" r="52" fill="#00f0ff" fill-opacity="0.2" stroke="#00f0ff" />
+    <text x="400" y="237" text-anchor="middle" fill="#dbe8f4" font-size="18">Plan</text><circle cx="360" cy="190" r="14" fill="#00f0ff" />
+    <text x="360" y="195" text-anchor="middle" fill="#0d1520" font-size="12">1</text><circle cx="600" cy="430" r="52" fill="#ff8c42" fill-opacity="0.2" stroke="#ff8c42" />
+    <text x="600" y="437" text-anchor="middle" fill="#dbe8f4" font-size="18">Do</text><circle cx="560" cy="390" r="14" fill="#ff8c42" />
+    <text x="560" y="395" text-anchor="middle" fill="#0d1520" font-size="12">2</text><circle cx="400" cy="630" r="52" fill="#9d7bff" fill-opacity="0.2" stroke="#9d7bff" />
+    <text x="400" y="637" text-anchor="middle" fill="#dbe8f4" font-size="18">Check</text><circle cx="360" cy="590" r="14" fill="#9d7bff" />
+    <text x="360" y="595" text-anchor="middle" fill="#0d1520" font-size="12">3</text><circle cx="200" cy="430" r="52" fill="#6b7b8c" fill-opacity="0.2" stroke="#6b7b8c" />
+    <text x="200" y="437" text-anchor="middle" fill="#dbe8f4" font-size="18">Act</text><circle cx="160" cy="390" r="14" fill="#6b7b8c" />
+    <text x="160" y="395" text-anchor="middle" fill="#0d1520" font-size="12">4</text><path d="M 400 230 Q 519.7989898732234 310.2010101267767 600 430" fill="none" stroke="rgba(180,210,230,0.55)" stroke-width="2.4" /><polygon points="548,430 538,426 546,418" fill="rgba(180,210,230,0.55)" transform="rotate(45 548 430)" /><path d="M 600 430 Q 519.7989898732234 549.7989898732234 400 630" fill="none" stroke="rgba(180,210,230,0.55)" stroke-width="2.4" /><polygon points="400,578 390,574 398,566" fill="rgba(180,210,230,0.55)" transform="rotate(135 400 578)" /><path d="M 400 630 Q 280.2010101267767 549.7989898732234 200 430" fill="none" stroke="rgba(180,210,230,0.55)" stroke-width="2.4" /><polygon points="252,430 242,426 250,418" fill="rgba(180,210,230,0.55)" transform="rotate(-135 252 430)" /><path d="M 200 430 Q 280.2010101267767 310.2010101267767 400 230" fill="none" stroke="rgba(180,210,230,0.55)" stroke-width="2.4" /><polygon points="400,282 390,278 398,270" fill="rgba(180,210,230,0.55)" transform="rotate(-45 400 282)" />
+</svg>

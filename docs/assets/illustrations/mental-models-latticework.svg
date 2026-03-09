@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Mental Models Latticework</text>
+  <rect x="120" y="170" width="170" height="170" rx="12" fill="#00f0ff" fill-opacity="0.18" stroke="#00f0ff" />
+      <text x="205" y="262" text-anchor="middle" fill="#dbe8f4" font-size="20">Model A</text><rect x="310" y="170" width="170" height="170" rx="12" fill="#ff8c42" fill-opacity="0.18" stroke="#ff8c42" />
+      <text x="395" y="262" text-anchor="middle" fill="#dbe8f4" font-size="20">Model B</text><rect x="500" y="170" width="170" height="170" rx="12" fill="#9d7bff" fill-opacity="0.18" stroke="#9d7bff" />
+      <text x="585" y="262" text-anchor="middle" fill="#dbe8f4" font-size="20">Model C</text><rect x="120" y="360" width="170" height="170" rx="12" fill="#6b7b8c" fill-opacity="0.18" stroke="#6b7b8c" />
+      <text x="205" y="452" text-anchor="middle" fill="#dbe8f4" font-size="20">C4</text><rect x="310" y="360" width="170" height="170" rx="12" fill="#00f0ff" fill-opacity="0.18" stroke="#00f0ff" />
+      <text x="395" y="452" text-anchor="middle" fill="#dbe8f4" font-size="20">C5</text><rect x="500" y="360" width="170" height="170" rx="12" fill="#ff8c42" fill-opacity="0.18" stroke="#ff8c42" />
+      <text x="585" y="452" text-anchor="middle" fill="#dbe8f4" font-size="20">C6</text><rect x="120" y="550" width="170" height="170" rx="12" fill="#9d7bff" fill-opacity="0.18" stroke="#9d7bff" />
+      <text x="205" y="642" text-anchor="middle" fill="#dbe8f4" font-size="20">C7</text><rect x="310" y="550" width="170" height="170" rx="12" fill="#6b7b8c" fill-opacity="0.18" stroke="#6b7b8c" />
+      <text x="395" y="642" text-anchor="middle" fill="#dbe8f4" font-size="20">C8</text><rect x="500" y="550" width="170" height="170" rx="12" fill="#00f0ff" fill-opacity="0.18" stroke="#00f0ff" />
+      <text x="585" y="642" text-anchor="middle" fill="#dbe8f4" font-size="20">C9</text>
+</svg>

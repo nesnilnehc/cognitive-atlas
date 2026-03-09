@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { MODEL_ILLUSTRATION_PATHS } from "../../data/illustration-paths.generated.js";
 
 function projectBoxToScreenRect(box, camera, renderer, margin) {
   const corners = [
@@ -212,17 +213,7 @@ export function createExportService({
     }
     for (let y = 0; y <= height; y += gridSize) {
       ctx.moveTo(0, y);
-      ctx.lineTo(0, width); // Fix: lineTo(width, y)
-    }
-    // Fix loop for Y
-    ctx.stroke();
-    // Redo Grid properly
-    ctx.beginPath();
-    for (let x = 0; x <= width; x += gridSize) {
-        ctx.moveTo(x, 0); ctx.lineTo(x, height);
-    }
-    for (let y = 0; y <= height; y += gridSize) {
-        ctx.moveTo(0, y); ctx.lineTo(width, y);
+      ctx.lineTo(width, y);
     }
     ctx.stroke();
 
@@ -303,10 +294,8 @@ export function createExportService({
     });
   }
 
-  /** 模型名 → 插图路径（相对项目根，用于竖卡） */
-  const ILLUSTRATION_PATHS = {
-    MECE: "docs/assets/illustrations/mece.png"
-  };
+  /** 模型名 → 插图路径（相对项目根，用于竖卡）。由 scripts/generate-illustrations.mjs 生成 */
+  const ILLUSTRATION_PATHS = MODEL_ILLUSTRATION_PATHS;
 
   /** 模型名 → 竖卡补充信息：概念一句话、参考来源、应用场景示例 */
   const DOUYIN_CARD_EXTRA = {
@@ -390,8 +379,20 @@ export function createExportService({
     const sourceH = sourceText ? 28 + measureWrappedHeight(ctx, sourceText, maxW, 28) + 12 : 0;
     const extraH = scopeH + sourceH;
     const ctaH = 80;
-    const illustrationH = illustrationImg ? 240 + 24 : 0; // 插图高 240px + 下方间距
-    const contentH = 72 + nameH + 24 + aliasH + 48 + illustrationH + 36 + defH + 24 + scopeH + extraH + 40 + ctaH;
+    const illustrationBoxW = maxW;
+    const illustrationBoxH = 560;
+    let illustrationDrawW = 0;
+    let illustrationDrawH = 0;
+    if (illustrationImg) {
+      const illScale = Math.min(
+        illustrationBoxW / illustrationImg.width,
+        illustrationBoxH / illustrationImg.height
+      );
+      illustrationDrawW = illustrationImg.width * illScale;
+      illustrationDrawH = illustrationImg.height * illScale;
+    }
+    const illustrationH = illustrationImg ? illustrationDrawH + 36 : 0;
+    const contentH = 72 + nameH + 24 + aliasH + 48 + illustrationH + 36 + defH + 24 + extraH + 40 + ctaH;
     const blockTop = Math.max(padding, (height - contentH) / 2);
 
     ctx.textAlign = "center";
@@ -406,11 +407,9 @@ export function createExportService({
     wrapText(ctx, model.aliasZh || "", width / 2, blockTop + 72 + nameH + 24, maxW, 40);
 
     if (illustrationImg) {
-      const illH = 240;
-      const illW = Math.min(maxW, illustrationImg.width * (illH / illustrationImg.height));
-      const illX = (width - illW) / 2;
+      const illX = (width - illustrationDrawW) / 2;
       const illY = blockTop + 72 + nameH + 24 + aliasH + 48;
-      ctx.drawImage(illustrationImg, illX, illY, illW, illH);
+      ctx.drawImage(illustrationImg, illX, illY, illustrationDrawW, illustrationDrawH);
     }
 
     let y = blockTop + 72 + nameH + 24 + aliasH + 48 + illustrationH;

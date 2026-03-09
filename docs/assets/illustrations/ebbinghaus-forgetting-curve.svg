@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Ebbinghaus Forgetting Curve</text>
+  <line x1="120" y1="640" x2="700" y2="640" stroke="rgba(180,210,230,0.55)" />
+  <line x1="120" y1="640" x2="120" y2="180" stroke="rgba(180,210,230,0.55)" />
+  <path d="M130 240 C190 280, 260 340, 340 420 C420 500, 520 560, 690 610" fill="none" stroke="#ff8c42" stroke-width="5" />
+  <path d="M130 300 C200 340, 280 390, 360 470 C450 550, 560 595, 690 628" fill="none" stroke="#00f0ff" stroke-width="3" opacity="0.75" />
+  <line x1="250" y1="180" x2="250" y2="640" stroke="rgba(180,210,230,0.55)" stroke-dasharray="4 5" />
+  <line x1="430" y1="180" x2="430" y2="640" stroke="rgba(180,210,230,0.55)" stroke-dasharray="4 5" />
+  <line x1="590" y1="180" x2="590" y2="640" stroke="rgba(180,210,230,0.55)" stroke-dasharray="4 5" />
+  <text x="210" y="670" fill="rgba(190,210,230,0.75)" font-size="14">T1</text>
+  <text x="390" y="670" fill="rgba(190,210,230,0.75)" font-size="14">T2</text>
+  <text x="550" y="670" fill="rgba(190,210,230,0.75)" font-size="14">T3</text>
+  <text x="140" y="206" fill="#dbe8f4" font-size="18">Forgetting Trend</text>
+  <text x="140" y="228" fill="rgba(190,210,230,0.75)" font-size="16">Retention</text>
+  <text x="610" y="676" fill="rgba(190,210,230,0.75)" font-size="16">Time</text>
+  <text x="480" y="520" fill="rgba(190,210,230,0.75)" font-size="14">Review</text>
+</svg>

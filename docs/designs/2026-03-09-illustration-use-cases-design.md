@@ -84,7 +84,7 @@ created_at: 2026-03-09
 **Phase 2**（可选）：学习手册、脚本模板、OG
 
 - 手册：Markdown 每节插入 `![](illustration.png)`
-- 脚本：输出 `配图：docs/assets/illustrations/mece.png`
+- 脚本：输出 `配图：docs/assets/illustrations/mece.svg`
 - OG：单模型落地页 `og:image` 指向 illustration
 
 **数据层**：在 model-library 或 v2 对象中增加可选字段 `illustration: { url, alt, source }`，与 `references` 并列。

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Blue Ocean Strategy</text>
+  <line x1="120" y1="640" x2="700" y2="640" stroke="rgba(180,210,230,0.55)" />
+  <line x1="120" y1="640" x2="120" y2="190" stroke="rgba(180,210,230,0.55)" />
+  <path d="M140 560 L220 520 L300 550 L380 510 L460 540 L540 500 L660 530" fill="none" stroke="#6b7b8c" stroke-width="4" />
+  <path d="M140 490 L220 420 L300 460 L380 340 L460 390 L540 300 L660 250" fill="none" stroke="#00f0ff" stroke-width="5" />
+  <text x="670" y="244" fill="#00f0ff" font-size="18">Blue Ocean</text>
+  <text x="670" y="536" fill="#6b7b8c" font-size="18">Red Ocean</text>
+</svg>

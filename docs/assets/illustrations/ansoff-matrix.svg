@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Ansoff Matrix</text>
+  <rect x="120" y="160" width="270" height="270" rx="16" fill="#00f0ff" fill-opacity="0.18" stroke="#00f0ff" />
+    <circle cx="154" cy="194" r="20" fill="#00f0ff" fill-opacity="0.9" />
+    <text x="154" y="201" text-anchor="middle" fill="#0d1520" font-size="14">Q1</text>
+    <text x="255" y="305" text-anchor="middle" fill="#dbe8f4" font-size="24" font-family="Inter,Arial,sans-serif">Market Pen.</text>
+<rect x="410" y="160" width="270" height="270" rx="16" fill="#ff8c42" fill-opacity="0.18" stroke="#ff8c42" />
+    <circle cx="444" cy="194" r="20" fill="#ff8c42" fill-opacity="0.9" />
+    <text x="444" y="201" text-anchor="middle" fill="#0d1520" font-size="14">Q2</text>
+    <text x="545" y="305" text-anchor="middle" fill="#dbe8f4" font-size="24" font-family="Inter,Arial,sans-serif">Product Dev.</text>
+<rect x="120" y="450" width="270" height="270" rx="16" fill="#9d7bff" fill-opacity="0.18" stroke="#9d7bff" />
+    <circle cx="154" cy="484" r="20" fill="#9d7bff" fill-opacity="0.9" />
+    <text x="154" y="491" text-anchor="middle" fill="#0d1520" font-size="14">Q3</text>
+    <text x="255" y="595" text-anchor="middle" fill="#dbe8f4" font-size="24" font-family="Inter,Arial,sans-serif">Market Dev.</text>
+<rect x="410" y="450" width="270" height="270" rx="16" fill="#6b7b8c" fill-opacity="0.18" stroke="#6b7b8c" />
+    <circle cx="444" cy="484" r="20" fill="#6b7b8c" fill-opacity="0.9" />
+    <text x="444" y="491" text-anchor="middle" fill="#0d1520" font-size="14">Q4</text>
+    <text x="545" y="595" text-anchor="middle" fill="#dbe8f4" font-size="24" font-family="Inter,Arial,sans-serif">Diversification</text>
+  <line x1="400" y1="150" x2="400" y2="730" stroke="rgba(180,210,230,0.55)" />
+  <line x1="110" y1="440" x2="690" y2="440" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="772" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="20">X</text>
+  <text x="52" y="440" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="20" transform="rotate(-90 52,440)">Y</text>
+  
+</svg>

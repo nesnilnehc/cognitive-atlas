@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dx="2" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="800" height="600" fill="#F7F9FC" rx="20" />
+
+  <!-- Title -->
+  <text x="400" y="60" font-family="Helvetica, Arial, sans-serif" font-size="32" font-weight="bold" fill="#2D3436" text-anchor="middle">MECE Principle</text>
+
+  <!-- Left Side: Mutually Exclusive (x=100 to 350) -->
+  <g transform="translate(100, 120)">
+    <!-- Visual: Separated Blocks (Scaled up) -->
+    <!-- Size: 110x110 -->
+    <rect x="0" y="0" width="110" height="110" fill="#4ECDC4" stroke="white" stroke-width="3" filter="url(#shadow)" />
+    <rect x="130" y="0" width="110" height="110" fill="#FF6B6B" stroke="white" stroke-width="3" filter="url(#shadow)" />
+    
+    <!-- Text below visual -->
+    <text x="120" y="150" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#2D3436" text-anchor="middle">Mutually Exclusive</text>
+    <text x="120" y="180" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="#636E72" text-anchor="middle">"No Overlap"</text>
+  </g>
+
+  <!-- Right Side: Collectively Exhaustive (x=450 to 700) -->
+  <g transform="translate(460, 120)">
+    <!-- Visual: Unified Square (Scaled up) -->
+    <!-- Size: 120x120 -->
+    <rect x="0" y="0" width="120" height="120" fill="#4ECDC4" stroke="white" stroke-width="1" />
+    <rect x="120" y="0" width="120" height="120" fill="#FF6B6B" stroke="white" stroke-width="1" />
+    <!-- Outer boundary -->
+    <rect x="-5" y="-5" width="250" height="130" fill="none" stroke="#2D3436" stroke-width="3" stroke-dasharray="8,8" />
+    
+    <!-- Text below visual -->
+    <text x="120" y="150" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#2D3436" text-anchor="middle">Collectively Exhaustive</text>
+    <text x="120" y="180" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="#636E72" text-anchor="middle">"No Gaps"</text>
+  </g>
+
+  <!-- Bottom: Synthesis (Centered, moved down) -->
+  <g transform="translate(250, 350)">
+    <text x="150" y="0" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="#636E72" text-anchor="middle" font-style="italic">Ideally, we want both:</text>
+    
+    <!-- The Unified Whole (Scaled up) -->
+    <!-- Size: 160x160 -->
+    <rect x="70" y="30" width="160" height="160" fill="none" stroke="#2D3436" stroke-width="4" rx="6" />
+    
+    <!-- Inside Parts fitting perfectly -->
+    <rect x="73" y="33" width="75" height="75" fill="#4ECDC4" opacity="0.8" />
+    <rect x="152" y="33" width="75" height="75" fill="#FF6B6B" opacity="0.8" />
+    <rect x="73" y="112" width="75" height="75" fill="#FFE66D" opacity="0.8" />
+    <rect x="152" y="112" width="75" height="75" fill="#1A535C" opacity="0.8" />
+    
+    <text x="150" y="230" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#2D3436" text-anchor="middle">MECE State</text>
+  </g>
+
+</svg>

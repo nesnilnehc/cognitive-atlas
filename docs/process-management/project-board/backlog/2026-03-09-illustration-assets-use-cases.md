@@ -27,4 +27,4 @@ trace_id: illustration-design-2026-03-09
 
 - Phase 1 优先：竖卡 + 落地页
 - Phase 2 可选：学习手册、脚本模板、OG 图
-- 参考：docs/assets/illustrations/mece.png、mece-source.md
+- 参考：docs/assets/illustrations/mece.svg、mece-source.md

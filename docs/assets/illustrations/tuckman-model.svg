@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Tuckman Model</text>
+  <polygon points="100,640 700,640 655,540 145,540" fill="#00f0ff" fill-opacity="0.18" stroke="#00f0ff" />
+    <text x="400" y="598" text-anchor="middle" fill="#dbe8f4" font-size="22">Adjourning</text><circle cx="130" cy="564" r="13" fill="#00f0ff" />
+    <text x="130" y="569" text-anchor="middle" fill="#0d1520" font-size="11">1</text><polygon points="145,540 655,540 610,440 190,440" fill="#ff8c42" fill-opacity="0.26" stroke="#ff8c42" />
+    <text x="400" y="498" text-anchor="middle" fill="#dbe8f4" font-size="22">Performing</text><circle cx="175" cy="464" r="13" fill="#ff8c42" />
+    <text x="175" y="469" text-anchor="middle" fill="#0d1520" font-size="11">2</text><polygon points="190,440 610,440 565,340 235,340" fill="#9d7bff" fill-opacity="0.33999999999999997" stroke="#9d7bff" />
+    <text x="400" y="398" text-anchor="middle" fill="#dbe8f4" font-size="22">Norming</text><circle cx="220" cy="364" r="13" fill="#9d7bff" />
+    <text x="220" y="369" text-anchor="middle" fill="#0d1520" font-size="11">3</text><polygon points="235,340 565,340 520,240 280,240" fill="#6b7b8c" fill-opacity="0.42" stroke="#6b7b8c" />
+    <text x="400" y="298" text-anchor="middle" fill="#dbe8f4" font-size="22">Storming</text><circle cx="265" cy="264" r="13" fill="#6b7b8c" />
+    <text x="265" y="269" text-anchor="middle" fill="#0d1520" font-size="11">4</text><polygon points="280,240 520,240 475,140 325,140" fill="#00f0ff" fill-opacity="0.5" stroke="#00f0ff" />
+    <text x="400" y="198" text-anchor="middle" fill="#dbe8f4" font-size="22">Forming</text><circle cx="310" cy="164" r="13" fill="#00f0ff" />
+    <text x="310" y="169" text-anchor="middle" fill="#0d1520" font-size="11">5</text>
+</svg>

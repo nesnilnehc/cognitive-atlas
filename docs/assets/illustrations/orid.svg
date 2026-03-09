@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">ORID</text>
+  <polygon points="120,180 680,180 645,297.5 155,297.5" fill="#00f0ff" fill-opacity="0.22" stroke="#00f0ff" />
+    <text x="400" y="246.75" text-anchor="middle" fill="#dbe8f4" font-size="22">Objective</text>
+    <circle cx="146" cy="206" r="13" fill="#00f0ff" />
+    <text x="146" y="211" text-anchor="middle" fill="#0d1520" font-size="11">1</text><polygon points="155,297.5 645,297.5 610,415 190,415" fill="#ff8c42" fill-opacity="0.32" stroke="#ff8c42" />
+    <text x="400" y="364.25" text-anchor="middle" fill="#dbe8f4" font-size="22">Reflective</text>
+    <circle cx="181" cy="323.5" r="13" fill="#ff8c42" />
+    <text x="181" y="328.5" text-anchor="middle" fill="#0d1520" font-size="11">2</text><polygon points="190,415 610,415 575,532.5 225,532.5" fill="#9d7bff" fill-opacity="0.42000000000000004" stroke="#9d7bff" />
+    <text x="400" y="481.75" text-anchor="middle" fill="#dbe8f4" font-size="22">Interpretive</text>
+    <circle cx="216" cy="441" r="13" fill="#9d7bff" />
+    <text x="216" y="446" text-anchor="middle" fill="#0d1520" font-size="11">3</text><polygon points="225,532.5 575,532.5 540,650 260,650" fill="#6b7b8c" fill-opacity="0.52" stroke="#6b7b8c" />
+    <text x="400" y="599.25" text-anchor="middle" fill="#dbe8f4" font-size="22">Decisional</text>
+    <circle cx="251" cy="558.5" r="13" fill="#6b7b8c" />
+    <text x="251" y="563.5" text-anchor="middle" fill="#0d1520" font-size="11">4</text>
+</svg>

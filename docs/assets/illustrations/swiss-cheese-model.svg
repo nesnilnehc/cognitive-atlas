@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#0d1520" />
+  <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
+  <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Swiss Cheese Model</text>
+  <rect x="120" y="220" width="110" height="420" rx="18" fill="#00f0ff" fill-opacity="0.2" stroke="#00f0ff" />
+    <circle cx="156" cy="300" r="12" fill="#121c2a" />
+    <circle cx="190" cy="390" r="18" fill="#121c2a" />
+    <circle cx="168" cy="500" r="14" fill="#121c2a" />
+    <circle cx="198" cy="590" r="10" fill="#121c2a" />
+    <text x="175" y="674" text-anchor="middle" fill="#dbe8f4" font-size="16">Layer 1</text><rect x="270" y="220" width="110" height="420" rx="18" fill="#ff8c42" fill-opacity="0.2" stroke="#ff8c42" />
+    <circle cx="306" cy="300" r="12" fill="#121c2a" />
+    <circle cx="340" cy="390" r="18" fill="#121c2a" />
+    <circle cx="318" cy="500" r="14" fill="#121c2a" />
+    <circle cx="348" cy="590" r="10" fill="#121c2a" />
+    <text x="325" y="674" text-anchor="middle" fill="#dbe8f4" font-size="16">Layer 2</text><rect x="420" y="220" width="110" height="420" rx="18" fill="#9d7bff" fill-opacity="0.2" stroke="#9d7bff" />
+    <circle cx="456" cy="300" r="12" fill="#121c2a" />
+    <circle cx="490" cy="390" r="18" fill="#121c2a" />
+    <circle cx="468" cy="500" r="14" fill="#121c2a" />
+    <circle cx="498" cy="590" r="10" fill="#121c2a" />
+    <text x="475" y="674" text-anchor="middle" fill="#dbe8f4" font-size="16">Layer 3</text><rect x="570" y="220" width="110" height="420" rx="18" fill="#6b7b8c" fill-opacity="0.2" stroke="#6b7b8c" />
+    <circle cx="606" cy="300" r="12" fill="#121c2a" />
+    <circle cx="640" cy="390" r="18" fill="#121c2a" />
+    <circle cx="618" cy="500" r="14" fill="#121c2a" />
+    <circle cx="648" cy="590" r="10" fill="#121c2a" />
+    <text x="625" y="674" text-anchor="middle" fill="#dbe8f4" font-size="16">Failure</text><line x1="100" y1="350" x2="710" y2="560" stroke="rgba(180,210,230,0.55)" stroke-width="4" />
+  <polygon points="696,548 724,566 691,574" fill="rgba(180,210,230,0.55)" />
+</svg>
