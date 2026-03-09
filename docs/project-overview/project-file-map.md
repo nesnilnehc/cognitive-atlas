@@ -83,6 +83,8 @@
 | `docs/architecture/20260306-core-scene-lifecycle.md` | core/scene 生命周期：场景、渲染器、渲染循环集中管理。 |
 | `docs/architecture/20260306-ui-panels-unification.md` | ui/panels 面板层统一：DOM 解析与可见性控制迁入 panels.js。 |
 | `docs/guides/share-url-best-practices.md` | 分享链接最佳实践：URL 参数说明、短格式、嵌入建议。 |
+| `docs/guides/douyin-publish-template.md` | 抖音发布模板：通用模板、占位符、checklist。 |
+| `docs/guides/douyin-publish-mece-phase1.md` | MECE 第一期发布内容：可直接拷贝的标题、话题、评论置顶。 |
 | `docs/architecture/promo-export-flow.md` | README 推广图导出与更新流程。 |
 | `docs/calibration/2026-03-06-cognitive-loop.md` | 项目认知循环报告；治理周期诊断与推荐任务。 |
 | `docs/calibration/2026-03-09-cognitive-loop.md` | 2026-03-09 scope-change 认知循环报告；落地方案驱动治理更新。 |
