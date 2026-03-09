@@ -303,6 +303,12 @@ export function createExportService({
       summaryZh: "拆解问题时不重叠、不遗漏，每一层分类相互独立且完全穷尽",
       source: "Barbara Minto《金字塔原理》；McKinsey 结构化思维",
       examples: "市场细分、问题拆解、报告结构、会议议题分类"
+    },
+    "Issue Tree": {
+      summaryZh: "将问题逐层拆解的图形方法，分支需 MECE；诊断树回答 why，方案树回答 how",
+      source: "Wikipedia (Issue tree)；Chevallier《Strategic Thinking in Complex Problem Solving》；McKinsey",
+      examples: "管理咨询案例面试、市场估算、根因分析、方案设计",
+      rules: ["始终回答 why 或 how", "从左到右逐层深入", "分支 MECE", "洞察性拆解"]
     }
   };
 
@@ -337,7 +343,10 @@ export function createExportService({
 
     const width = 1080;
     const height = 1920;
-    const padding = 56;
+    /** 两侧安全边距，避开抖音等平台工具栏遮挡 */
+    const DOUYIN_SAFE_MARGIN_H = 100;
+    const paddingVertical = 56;
+    const paddingH = DOUYIN_SAFE_MARGIN_H;
 
     const canvas = document.createElement("canvas");
     canvas.width = width;
@@ -351,7 +360,7 @@ export function createExportService({
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    const maxW = width - padding * 2;
+    const maxW = width - 2 * paddingH;
     const extra = DOUYIN_CARD_EXTRA[model.name];
     const defText = (extra?.summaryZh || model.descriptionEn || model.knowledgeObject?.summary || model.aliasZh || model.name) || "—";
     const whenText = (model.knowledgeObject?.whenToUse || model.purpose || "").trim();
@@ -364,6 +373,9 @@ export function createExportService({
     else if (model.category && categoryLabels[model.category]) scopeText = `适用：${categoryLabels[model.category]}领域`;
     const showScope = !!scopeText;
     const sourceText = extra?.source || null;
+    const rulesArr = Array.isArray(extra?.rules) ? extra.rules : null;
+    const rulesText = rulesArr ? rulesArr.map((r, i) => `${i + 1}. ${r}`).join("  ") : null;
+    const showRules = !!rulesText;
 
     const defFont = "36px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif";
 
@@ -377,7 +389,9 @@ export function createExportService({
     const scopeH = showScope ? 36 + measureWrappedHeight(ctx, scopeText, maxW, 38) + 24 : 0;
     ctx.font = "24px -apple-system, BlinkMacSystemFont, sans-serif";
     const sourceH = sourceText ? 28 + measureWrappedHeight(ctx, sourceText, maxW, 28) + 12 : 0;
-    const extraH = scopeH + sourceH;
+    ctx.font = "24px -apple-system, BlinkMacSystemFont, sans-serif";
+    const rulesH = showRules ? 28 + measureWrappedHeight(ctx, rulesText, maxW, 26) + 12 : 0;
+    const extraH = scopeH + sourceH + rulesH;
     const ctaH = 80;
     const illustrationBoxW = maxW;
     const illustrationBoxH = 560;
@@ -393,7 +407,7 @@ export function createExportService({
     }
     const illustrationH = illustrationImg ? illustrationDrawH + 36 : 0;
     const contentH = 72 + nameH + 24 + aliasH + 48 + illustrationH + 36 + defH + 24 + extraH + 40 + ctaH;
-    const blockTop = Math.max(padding, (height - contentH) / 2);
+    const blockTop = Math.max(paddingVertical, (height - contentH) / 2);
 
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
@@ -422,6 +436,17 @@ export function createExportService({
     wrapTextByWords(ctx, defText, width / 2, y, maxW, 44);
     y += defH + 24;
 
+    if (showRules) {
+      ctx.fillStyle = "rgba(130, 150, 180, 0.7)";
+      ctx.font = "22px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif";
+      ctx.fillText("四条规则", width / 2, y);
+      y += 28;
+      ctx.fillStyle = "rgba(150, 170, 195, 0.85)";
+      ctx.font = "24px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif";
+      wrapTextByWords(ctx, rulesText, width / 2, y, maxW, 26);
+      y += measureWrappedHeight(ctx, rulesText, maxW, 26) + 12;
+    }
+
     if (showScope) {
       ctx.fillStyle = "rgba(170, 186, 204, 0.85)";
       ctx.font = "26px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif";
@@ -447,8 +472,8 @@ export function createExportService({
     ctx.strokeStyle = "rgba(0, 240, 255, 0.2)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(padding + 80, y);
-    ctx.lineTo(width - padding - 80, y);
+    ctx.moveTo(paddingH + 80, y);
+    ctx.lineTo(width - paddingH - 80, y);
     ctx.stroke();
     y += 40;
 
@@ -465,7 +490,7 @@ export function createExportService({
     ctx.textBaseline = "bottom";
     ctx.fillStyle = "rgba(100, 130, 160, 0.55)";
     ctx.font = "20px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-    ctx.fillText("Cognitive Atlas", width - padding, height - padding);
+    ctx.fillText("Cognitive Atlas", width - paddingH, height - paddingVertical);
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
 
