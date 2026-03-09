@@ -318,7 +318,9 @@ export function createExportService({
       img.crossOrigin = "anonymous";
       img.onload = () => resolve(img);
       img.onerror = () => reject(new Error(`Failed to load image: ${path}`));
-      img.src = new URL(path, window.location.href).href;
+      const url = new URL(path, window.location.href);
+      url.searchParams.set("v", String(Date.now()));
+      img.src = url.href;
     });
   }
 
