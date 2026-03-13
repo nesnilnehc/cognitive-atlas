@@ -26,7 +26,7 @@
 ## 话题
 
 ```
-#思维模型 #认知工具箱 #EisenhowerMatrix #战略分析 #决策思维
+#思维模型 #认知工具箱 #EisenhowerMatrix #时间管理 #优先级
 ```
 
 ---
