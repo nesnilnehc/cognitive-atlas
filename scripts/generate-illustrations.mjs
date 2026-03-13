@@ -25,7 +25,7 @@ const COLORS = {
   muted: "rgba(190,210,230,0.75)"
 };
 
-const MANUAL_SLUGS = new Set(["mece", "issue-tree"]);
+const MANUAL_SLUGS = new Set(["mece", "issue-tree", "fishbone-diagram"]);
 
 function slugify(value) {
   return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -286,22 +286,27 @@ function renderTree(config) {
   return body;
 }
 
+/**
+ * Ishikawa / Fishbone diagram: head (Effect) faces right, causes extend left as fishbones.
+ * Ref: https://en.wikipedia.org/wiki/Ishikawa_diagram
+ * 5 Ms (manufacturing): Manpower, Machine, Material, Method, Measurement.
+ */
 function renderFishbone(config, modelName) {
   const labels = (config.labels || []).slice(0, 8);
   let body = `<line x1="140" y1="430" x2="650" y2="430" stroke="${COLORS.line}" stroke-width="5" />
   <polygon points="650,420 690,430 650,440" fill="${COLORS.line}" />
   <rect x="692" y="398" width="84" height="64" rx="10" fill="${COLORS.accent4}" fill-opacity="0.2" stroke="${COLORS.accent4}" />
-  <text x="734" y="438" text-anchor="middle" fill="${COLORS.text}" font-size="18">${esc(labels[labels.length - 1] || "Effect")}</text>
-  <text x="120" y="166" fill="${COLORS.muted}" font-size="16">Primary Causes</text>`;
+  <text x="734" y="438" text-anchor="middle" fill="${COLORS.text}" font-size="18">${esc(labels[labels.length - 1] || "Effect")}</text>`;
   const causes = labels.slice(0, Math.max(labels.length - 1, 1));
   causes.forEach((label, i) => {
-    const x = 180 + i * (420 / Math.max(causes.length - 1, 1));
+    const xSpine = 180 + i * (420 / Math.max(causes.length - 1, 1));
     const up = i % 2 === 0;
-    const y2 = up ? 320 : 540;
+    const y2 = up ? 300 : 560;
+    const x2 = xSpine - 85;
     const c = [COLORS.accent1, COLORS.accent2, COLORS.accent3, COLORS.accent4][i % 4];
-    body += `<line x1="${x}" y1="430" x2="${x + 70}" y2="${y2}" stroke="${c}" stroke-width="3" />
-    <text x="${x + 78}" y="${up ? y2 - 10 : y2 + 24}" fill="${COLORS.text}" font-size="19">${esc(label)}</text>
-    <line x1="${x + 28}" y1="${up ? 395 : 465}" x2="${x + 52}" y2="${up ? 360 : 500}" stroke="${COLORS.line}" stroke-width="2" />`;
+    body += `<line x1="${xSpine}" y1="430" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="3" />
+    <text x="${x2 - 4}" y="${up ? y2 - 12 : y2 + 24}" text-anchor="end" fill="${COLORS.text}" font-size="18">${esc(label)}</text>
+    <line x1="${xSpine - 42}" y1="${up ? 365 : 495}" x2="${x2 + 20}" y2="${up ? 340 : 530}" stroke="${COLORS.line}" stroke-width="2" />`;
   });
   return body;
 }

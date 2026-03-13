@@ -68,7 +68,10 @@ illustration:
 | 模型 | 路径 | 说明 |
 |------|------|------|
 | MECE | `docs/assets/illustrations/mece.svg` | 四方格非重叠分区，ME+CE 视觉隐喻 |
+| Fishbone Diagram | `docs/assets/illustrations/fishbone-diagram.svg` | Ishikawa 鱼骨图：鱼头（Effect）朝右，6 个对称的主分支原因向左分支 |
 
 ### 预览
 
 MECE 插图：深色背景，中心方形被分为四块互不重叠的色块（青/橙/紫/灰），合起来覆盖整个方形，体现「相互独立、完全穷尽」。
+
+Fishbone 插图：深色背景，脊骨自左至右，鱼头（Effect）在右；包含 6 个对称的主干分类（Measurements, Environment, Materials, Methods, Personnel, Machines），从主脊骨向上下两侧延伸，带水平次枝干表示根因细分。结构对齐维基百科的标准 Ishikawa 布局。参考 [Ishikawa diagram - Wikipedia](https://en.wikipedia.org/wiki/Ishikawa_diagram)。

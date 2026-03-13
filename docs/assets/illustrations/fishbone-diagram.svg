@@ -2,19 +2,39 @@
   <rect width="800" height="800" fill="#0d1520" />
   <rect x="28" y="28" width="744" height="744" rx="24" fill="#121c2a" stroke="rgba(180,210,230,0.55)" />
   <text x="400" y="78" text-anchor="middle" fill="rgba(190,210,230,0.75)" font-size="26" font-family="Inter,Arial,sans-serif">Fishbone Diagram</text>
-  <line x1="140" y1="430" x2="650" y2="430" stroke="rgba(180,210,230,0.55)" stroke-width="5" />
-  <polygon points="650,420 690,430 650,440" fill="rgba(180,210,230,0.55)" />
-  <rect x="692" y="398" width="84" height="64" rx="10" fill="#6b7b8c" fill-opacity="0.2" stroke="#6b7b8c" />
-  <text x="734" y="438" text-anchor="middle" fill="#dbe8f4" font-size="18">Effect</text>
-  <text x="120" y="166" fill="rgba(190,210,230,0.75)" font-size="16">Primary Causes</text><line x1="180" y1="430" x2="250" y2="320" stroke="#00f0ff" stroke-width="3" />
-    <text x="258" y="310" fill="#dbe8f4" font-size="19">People</text>
-    <line x1="208" y1="395" x2="232" y2="360" stroke="rgba(180,210,230,0.55)" stroke-width="2" /><line x1="285" y1="430" x2="355" y2="540" stroke="#ff8c42" stroke-width="3" />
-    <text x="363" y="564" fill="#dbe8f4" font-size="19">Methods</text>
-    <line x1="313" y1="465" x2="337" y2="500" stroke="rgba(180,210,230,0.55)" stroke-width="2" /><line x1="390" y1="430" x2="460" y2="320" stroke="#9d7bff" stroke-width="3" />
-    <text x="468" y="310" fill="#dbe8f4" font-size="19">Machines</text>
-    <line x1="418" y1="395" x2="442" y2="360" stroke="rgba(180,210,230,0.55)" stroke-width="2" /><line x1="495" y1="430" x2="565" y2="540" stroke="#6b7b8c" stroke-width="3" />
-    <text x="573" y="564" fill="#dbe8f4" font-size="19">Materials</text>
-    <line x1="523" y1="465" x2="547" y2="500" stroke="rgba(180,210,230,0.55)" stroke-width="2" /><line x1="600" y1="430" x2="670" y2="320" stroke="#00f0ff" stroke-width="3" />
-    <text x="678" y="310" fill="#dbe8f4" font-size="19">Environment</text>
-    <line x1="628" y1="395" x2="652" y2="360" stroke="rgba(180,210,230,0.55)" stroke-width="2" />
+  
+  <line x1="70" y1="430" x2="600" y2="430" stroke="rgba(180,210,230,0.55)" stroke-width="5" />
+  <polygon points="600,420 640,430 600,440" fill="rgba(180,210,230,0.55)" />
+  <rect x="642" y="398" width="84" height="64" rx="10" fill="#6b7b8c" fill-opacity="0.2" stroke="#6b7b8c" />
+  <text x="684" y="438" text-anchor="middle" fill="#dbe8f4" font-size="18">Effect</text>
+
+  <!-- Measurements (Top Left) -->
+  <line x1="170" y1="430" x2="120" y2="280" stroke="#00f0ff" stroke-width="3" />
+  <text x="120" y="268" text-anchor="middle" fill="#dbe8f4" font-size="18">Measurements</text>
+  <line x1="145" y1="355" x2="85" y2="355" stroke="rgba(180,210,230,0.55)" stroke-width="2" />
+
+  <!-- Environment (Bottom Left) -->
+  <line x1="170" y1="430" x2="120" y2="580" stroke="#00ff9d" stroke-width="3" />
+  <text x="120" y="604" text-anchor="middle" fill="#dbe8f4" font-size="18">Environment</text>
+  <line x1="145" y1="505" x2="85" y2="505" stroke="rgba(180,210,230,0.55)" stroke-width="2" />
+
+  <!-- Materials (Top Middle) -->
+  <line x1="350" y1="430" x2="300" y2="280" stroke="#9d7bff" stroke-width="3" />
+  <text x="300" y="268" text-anchor="middle" fill="#dbe8f4" font-size="18">Materials</text>
+  <line x1="325" y1="355" x2="265" y2="355" stroke="rgba(180,210,230,0.55)" stroke-width="2" />
+
+  <!-- Methods (Bottom Middle) -->
+  <line x1="350" y1="430" x2="300" y2="580" stroke="#6b7b8c" stroke-width="3" />
+  <text x="300" y="604" text-anchor="middle" fill="#dbe8f4" font-size="18">Methods</text>
+  <line x1="325" y1="505" x2="265" y2="505" stroke="rgba(180,210,230,0.55)" stroke-width="2" />
+
+  <!-- Personnel (Top Right) -->
+  <line x1="530" y1="430" x2="480" y2="280" stroke="#ff42a1" stroke-width="3" />
+  <text x="480" y="268" text-anchor="middle" fill="#dbe8f4" font-size="18">Personnel</text>
+  <line x1="505" y1="355" x2="445" y2="355" stroke="rgba(180,210,230,0.55)" stroke-width="2" />
+
+  <!-- Machines (Bottom Right) -->
+  <line x1="530" y1="430" x2="480" y2="580" stroke="#ff8c42" stroke-width="3" />
+  <text x="480" y="604" text-anchor="middle" fill="#dbe8f4" font-size="18">Machines</text>
+  <line x1="505" y1="505" x2="445" y2="505" stroke="rgba(180,210,230,0.55)" stroke-width="2" />
 </svg>

@@ -68,7 +68,7 @@ export const ILLUSTRATION_CONFIG = {
   "Fishbone Diagram": {
     tier: "P0",
     template: "fishbone",
-    labels: ["People", "Methods", "Machines", "Materials", "Environment", "Effect"],
+    labels: ["Manpower", "Machine", "Material", "Method", "Measurement", "Effect"],
     color: "accent2"
   },
   "Diffusion of Innovation": {
