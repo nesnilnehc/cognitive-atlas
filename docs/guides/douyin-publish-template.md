@@ -50,7 +50,7 @@
 
 ## 4. 发布 checklist
 
-- [ ] 竖卡已导出（9:16，1080×1920）
+- [ ] 竖卡已导出（9:16，1080×1920）；布局遵守 [平台约束](../designs/douyin-card-platform-constraints.md)（两侧安全边距 ≥100px）
 - [ ] 标题 / 描述已写好（≤35 字）
 - [ ] 话题标签已添加（2–5 个）
 - [ ] 评论置顶已发布，含落地页链接
@@ -175,5 +175,6 @@ npm run export:script -- MECE
 
 ## 7. 相关文档
 
+- [抖音竖卡平台约束](../designs/douyin-card-platform-constraints.md) — **竖卡布局必须遵守的全局规则**（两侧安全边距等）
 - [分享链接最佳实践](share-url-best-practices.md) — URL 参数说明
 - [可传播认知资产需求](../requirements-planning/spreadable-cognitive-assets-requirements.md) — 竖卡、脚本、落地页规范
